@@ -1,7 +1,10 @@
+use crate::tar::get_tar_details;
 use crate::zip::get_zip_details;
-use crate::data_type::FileInfo;
+use crate::data_type::{FileInfo, AppTempDir};
 use std::fs;
 use std::path::PathBuf;
+use tauri::State;
+use std::sync::Arc;
 
 
 
@@ -47,7 +50,7 @@ pub fn read_directory(path: String) -> Result<Vec<FileInfo>, String> {
     Ok(entries)
 }
 #[tauri::command]
-pub fn open_file(path: String, file_path: Option<String>) -> Result<Option<Vec<FileInfo>>, String> {
+pub fn open_file(path: String, file_path: Option<String>, state: State<'_, Arc<AppTempDir>>) -> Result<Option<Vec<FileInfo>>, String> {
     let path = PathBuf::from(path);
     if !path.is_file() {
         return Err("Provided path is not a file.".to_string());
@@ -55,7 +58,10 @@ pub fn open_file(path: String, file_path: Option<String>) -> Result<Option<Vec<F
 
     match path.extension().and_then(|ext| ext.to_str()) {
         Some("zip") => {
-            get_zip_details(path, file_path).map(|details| Ok(Some(details))).unwrap_or_else(Err)
+            get_zip_details(path, file_path, state).map(|details| Ok(Some(details))).unwrap_or_else(Err)
+        },
+        Some("tar") => {
+            get_tar_details(path, file_path, state).map(|details| Ok(Some(details))).unwrap_or_else(Err)
         },
         _ => {
             let result = open::that(&path);

@@ -1,7 +1,7 @@
 import React from 'react';
 import FileItem from './FileItem';
 
-const FileList = ({ files, onSelect }) => {
+const FileList = ({ files, selectedFiles, onOpenFile, onSelect }) => {
     return (
         <div className="bg-white shadow rounded-lg mt-4">
             <div className='px-4 py-2 flex border-b'>
@@ -16,7 +16,13 @@ const FileList = ({ files, onSelect }) => {
             >
                 {files.length ? (
                     files.map((file, index) => (
-                        <FileItem key={index} file={file} onSelect={onSelect} />
+                        <FileItem
+                            key={index}
+                            file={file}
+                            selected={selectedFiles.some(selectedFile => selectedFile.path === file.path)}
+                            onOpenFile={onOpenFile}
+                            onSelect={onSelect}
+                        />
                     ))
                 ) : (
                     <div className="p-4 text-gray-500 text-center">No files available</div>

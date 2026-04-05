@@ -14,11 +14,24 @@
       {
         "title": "Rusty Compress",
         "width": 800,
-        "height": 600
+        "height": 650
       }
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "cli": {
+      "description": "Rusty compress CLI",
+      "args": [
+        {
+          "name": "source",
+          "index": 1,
+          "takesValue": true
+        }
+      ]
+      
     }
   },
   "bundle": {

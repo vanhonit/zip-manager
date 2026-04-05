@@ -6,9 +6,10 @@ import FileManager from './modules/FileManager';
 function RustyCompress() {
   const urlParams = new URLSearchParams(window.location.search);
   const windowLabel = urlParams.get("label");
-  console.log(windowLabel);
+  const windowName = urlParams.get("name");
+  
   if (windowLabel === "progress") {
-    return <ProgressWindow />;
+    return <ProgressWindow name={windowName} />;
   }
 
   return <FileManager />;
