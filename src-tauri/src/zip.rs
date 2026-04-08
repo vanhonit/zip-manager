@@ -1,93 +1,137 @@
 use open::that_detached;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader};
-use std::path::{Path, PathBuf, MAIN_SEPARATOR};
+use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use tauri::Emitter;
 use tauri::State;
-use zip::{DateTime, ZipArchive};
+use zip::ZipArchive;
 
 use crate::data_type::{AppTempDir, ExtractionConfig, ExtractionProgress, FileInfo};
-use crate::utils::{get_file_extension, remove_last_item_from_path_string};
 use rand::Rng;
 
 pub fn get_zip_details(
     source_path: PathBuf,
     file_path: Option<String>,
-    state: State<'_, Arc<AppTempDir>>,
+    _state: State<'_, Arc<AppTempDir>>,
 ) -> Result<Vec<FileInfo>, String> {
-    let file = File::open(source_path.clone()).map_err(|e| e.to_string())?;
-    let mut archive = ZipArchive::new(BufReader::new(file)).map_err(|e| e.to_string())?;
-    let mut file_details: Vec<FileInfo> = Vec::new();
-    let file_path = file_path.unwrap();
+    let file_path = file_path.unwrap_or_default();
 
-    if !file_path.is_empty() && !file_path.ends_with(MAIN_SEPARATOR) {
-        let res = view_file_in_zip(
-            source_path.clone().to_string_lossy().to_string(),
-            file_path.clone(),
-            state.clone(),
-        );
-        println!("{:?}", res);
-        file_details.push(FileInfo {
-            name: file_path.clone(),
-            is_dir: false,
-            last_modified: "N/A".to_string(),
-            size: 0,
-            mimetype: "".to_string(),
-            path: file_path.clone(),
-        });
-        return Ok(file_details);
+    // Normalize current_dir to always end with '/' if non-empty
+    let current_dir = if file_path.is_empty() {
+        String::new()
+    } else if file_path.ends_with('/') {
+        file_path.clone()
+    } else {
+        format!("{}/", file_path)
+    };
+
+    // Open the archive
+    let file = File::open(&source_path).map_err(|e| e.to_string())?;
+    let reader = BufReader::new(file);
+    let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
+
+    // First pass: collect all entry names
+    let mut all_names: Vec<String> = Vec::new();
+    for i in 0..archive.len() {
+        let entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        all_names.push(entry.name().to_string());
     }
 
-    for i in 0..archive.len() {
-        let file = archive.by_index(i).map_err(|e| e.to_string())?;
-        let file_name = file.name();
-        if file_name.starts_with(&file_path) {
-            let relative_path = file_name
-                .strip_prefix(&file_path)
-                .unwrap_or(file_name)
-                .trim_end_matches(MAIN_SEPARATOR);
-            let count_child = relative_path.split(MAIN_SEPARATOR).collect::<Vec<&str>>();
-            if count_child.len() == 1 {
-                let size = file.size();
-                let is_dir = file.is_dir();
-                let path = file.enclosed_name().unwrap().to_string_lossy().to_string();
-                let last_modified = file
-                    .last_modified()
-                    .map(|dt: DateTime| {
-                        let dt = chrono::NaiveDateTime::try_from(dt).unwrap();
-                        dt.format("%Y-%m-%d %H:%M:%S").to_string()
-                    })
-                    .unwrap_or("N/A".to_string());
-                if relative_path.is_empty() {
-                    file_details.push(FileInfo {
-                        name: "..".to_string(),
-                        is_dir,
-                        last_modified,
-                        size,
-                        mimetype: "".to_string(),
-                        path: remove_last_item_from_path_string(file_path.as_str())
-                            .unwrap_or_else(|_| "".to_string()),
-                    });
-                } else {
-                    file_details.push(FileInfo {
-                        name: relative_path.trim_end_matches('/').to_string(),
-                        is_dir,
-                        last_modified,
-                        size,
-                        mimetype: mime_guess::from_ext(
-                            get_file_extension(relative_path).unwrap().as_str(),
-                        )
-                        .first_raw()
-                        .unwrap_or("")
-                        .to_string(),
-                        path,
-                    });
+    // Build a deduplicated set of immediate children of current_dir
+    let mut seen: HashSet<String> = HashSet::new();
+    let mut child_paths: Vec<String> = Vec::new();
+
+    for name in &all_names {
+        // Skip if this entry IS the current directory itself
+        if name == &current_dir {
+            continue;
+        }
+        // Skip entries outside the current directory
+        if !current_dir.is_empty() && !name.starts_with(&current_dir) {
+            continue;
+        }
+
+        // Strip the current_dir prefix to get the relative path
+        let relative = &name[current_dir.len()..];
+
+        let child_path = match relative.find('/') {
+            Some(pos) => {
+                // Entry lives inside a subdirectory — immediate child is the dir
+                let dir_part = &relative[..pos];
+                if dir_part.is_empty() {
+                    continue;
                 }
+                format!("{}{}/", current_dir, dir_part)
             }
+            None => {
+                // Direct file child of current_dir
+                name.clone()
+            }
+        };
+
+        if seen.insert(child_path.clone()) {
+            child_paths.push(child_path);
         }
     }
+
+    // Second pass: fetch metadata for each immediate child
+    let mut file_details: Vec<FileInfo> = Vec::new();
+
+    for child_path in &child_paths {
+        let is_dir = child_path.ends_with('/');
+        let display_name = child_path
+            .trim_end_matches('/')
+            .rsplit('/')
+            .next()
+            .unwrap_or(child_path.as_str())
+            .to_string();
+
+        let (size, last_modified) = match archive.by_name(child_path.as_str()) {
+            Ok(entry) => {
+                let size = entry.size();
+                let last_modified = entry
+                    .last_modified()
+                    .map(|dt| {
+                        chrono::NaiveDateTime::try_from(dt)
+                            .map(|ndt| ndt.format("%Y-%m-%d %H:%M:%S").to_string())
+                            .unwrap_or_else(|_| "N/A".to_string())
+                    })
+                    .unwrap_or_else(|| "N/A".to_string());
+                (size, last_modified)
+            }
+            // No explicit record for this entry (e.g. an inferred directory)
+            Err(_) => (0, "N/A".to_string()),
+        };
+
+        let mimetype = if is_dir {
+            String::new()
+        } else {
+            let ext = child_path.rsplit('.').next().unwrap_or("");
+            mime_guess::from_ext(ext)
+                .first_raw()
+                .unwrap_or("")
+                .to_string()
+        };
+
+        file_details.push(FileInfo {
+            name: display_name,
+            is_dir,
+            last_modified,
+            size,
+            mimetype,
+            path: child_path.clone(),
+        });
+    }
+
+    // Sort: directories first, then alphabetical by lowercase name
+    file_details.sort_by(|a, b| {
+        b.is_dir
+            .cmp(&a.is_dir)
+            .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    });
 
     Ok(file_details)
 }
@@ -193,43 +237,70 @@ pub fn view_file_in_zip(
     file_name: String,
     state: State<'_, Arc<AppTempDir>>,
 ) -> Result<String, String> {
-    // Open the ZIP file
-    let file = File::open(&source).map_err(|e| format!("Failed to open ZIP file: {}", e))?;
+    if file_name.contains("..") {
+        return Err(format!("Invalid file name (path traversal): {}", file_name));
+    }
+
+    let file_name_clean = file_name.trim();
+    if file_name_clean.is_empty() {
+        return Err("Empty file name provided".to_string());
+    }
+
+    // Open the archive
+    let file = File::open(&source).map_err(|e| format!("Failed to open archive: {}", e))?;
     let reader = BufReader::new(file);
     let mut archive =
-        ZipArchive::new(reader).map_err(|e| format!("Failed to read ZIP archive: {}", e))?;
+        ZipArchive::new(reader).map_err(|e| format!("Failed to read archive: {}", e))?;
 
-    // Locate the target file
-    let mut file_in_zip = archive
-        .by_name(&file_name)
-        .map_err(|e| format!("File not found in ZIP archive: {}", e))?;
+    // Try to find the file
+    let mut file_in_zip = match archive.by_name(file_name_clean) {
+        Ok(file) => {
+            eprintln!("[DEBUG] File found successfully: {}", file.name());
+            file
+        }
+        Err(e) => {
+            eprintln!("[ERROR] File not found: {}", e);
+            return Err(format!("File not found in archive: {}", e));
+        }
+    };
 
-    // Create a temporary directory
+    // Create a temporary file
     let temp_dir = &state.temp_dir;
     let mut rng = rand::thread_rng();
-    let random_name: String = (0..10)
-        .map(|_| (0x61u8 + (rng.gen::<f32>() * 26.0) as u8) as char)
-        .collect();
-    let extension = Path::new(&file_name)
+
+    // Extract file extension from the actual found path
+    let actual_file_path = file_in_zip.name();
+    let extension = Path::new(actual_file_path)
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("");
+
+    let random_name: String = (0..10)
+        .map(|_| rng.gen_range(b'a'..=b'z') as char)
+        .collect();
+
     let random_file_name: String = if extension.is_empty() {
         random_name
     } else {
         format!("{}.{}", random_name, extension)
     };
-    let temp_file_path = temp_dir.path().join(random_file_name);
+
+    let temp_file_path = temp_dir.path().join(&random_file_name);
+
     // Write the file to the temporary directory
-    let mut temp_file = File::create(&temp_file_path)
-        .map_err(|e| format!("Failed to create temp file: {}", e))
-        .unwrap();
-    let _ = std::io::copy(&mut file_in_zip, &mut temp_file)
-        .map_err(|e| format!("Failed to write temp file: {}", e));
+    let mut temp_file =
+        File::create(&temp_file_path).map_err(|e| format!("Failed to create temp file: {}", e))?;
+    let bytes_copied = std::io::copy(&mut file_in_zip, &mut temp_file)
+        .map_err(|e| format!("Failed to write temp file: {}", e))?;
+
+    eprintln!("[DEBUG] Extracted {} bytes to temp file", bytes_copied);
+
+    // Clean up the temp file after opening with that_detached
+    let _ = std::fs::remove_file(&temp_file_path);
 
     // Open the file with the default application
     that_detached(&temp_file_path).map_err(|e| format!("Failed to open file: {}", e))?;
 
-    // Return the path of the temporary file (optional, for debugging or logs)
+    // Return the path of the temporary file
     Ok(temp_file_path.to_string_lossy().to_string())
 }

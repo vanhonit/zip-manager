@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub fn remove_last_item_from_path_string(path: &str) -> Result<String, String> {
     // Trim any trailing slashes to normalize the path
     let trimmed_path = path.trim_end_matches('/').trim_end_matches('\\');
@@ -12,6 +13,7 @@ pub fn remove_last_item_from_path_string(path: &str) -> Result<String, String> {
     }
 }
 
+#[allow(dead_code)]
 pub fn get_file_extension(file_name: &str) -> Option<String> {
     // Split the file name by the last '.' and get the extension
     file_name.split('.').last().map(|ext| ext.to_string())
