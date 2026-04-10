@@ -1,0 +1,1 @@
+- When generating code, do not produce any accompanying documentation (.md files) or conversational summaries.
