@@ -2,9 +2,10 @@
 
 mod data_type;
 mod file_manager;
+mod rar;
+mod tar;
 mod utils;
 mod zip;
-mod tar;
 
 use std::fs;
 use std::path::PathBuf;
@@ -12,15 +13,21 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 // use zip::ZipArchive;
-use data_type::{ExtractionConfig, FileInfo, AppTempDir};
+use data_type::{AppTempDir, ExtractionConfig, FileInfo};
 use file_manager::{open_file, read_directory};
-use zip::view_file_in_zip;
-use tar::view_file_in_tar;
+use rar::get_image_preview_from_rar;
+use rar::get_rar_details;
+use rar::unarchive_rar_file;
+use rar::view_file_in_rar;
 use std::thread;
-use tempfile::TempDir;
-use tauri::{Manager, WebviewWindowBuilder};
+use tar::get_image_preview_from_tar;
+use tar::view_file_in_tar;
 use tauri::{AppHandle, Emitter, Listener};
-
+use tauri::{Manager, WebviewWindowBuilder};
+use tempfile::TempDir;
+use utils::{detect_archive_type, is_rar_based, is_tar_based, is_zip_based};
+use zip::get_image_preview_from_zip;
+use zip::view_file_in_zip;
 
 #[tauri::command]
 fn archive_file_details(
@@ -28,43 +35,20 @@ fn archive_file_details(
     file_path: Option<String>,
     state: tauri::State<'_, Arc<AppTempDir>>,
 ) -> Result<Vec<FileInfo>, String> {
-    let source = PathBuf::from(source_path);
+    let source = PathBuf::from(source_path.clone());
 
-    match source.extension().and_then(|ext| ext.to_str()) {
-        Some("zip") => zip::get_zip_details(source, file_path, state).map_err(|e| e.to_string()),
-        Some("tar") => tar::get_tar_details(source, file_path, state).map_err(|e| e.to_string()),
-        // Some("tar") => {
-        //     let file = fs::File::open(&source).map_err(|e| e.to_string())?;
-        //     let mut archive = Archive::new(file);
-        //     let mut file_infos = Vec::new();
-        //     for entry in archive.entries().map_err(|e| e.to_string())? {
-        //         let entry = entry.map_err(|e| e.to_string())?;
-        //         let path = entry.path().map_err(|e| e.to_string())?.into_owned();
-        //         let file_info = FileInfo {
-        //             path: path.to_string_lossy().into_owned(),
-        //             is_dir: entry.header().entry_type().is_dir(),
-        //         };
-        //         file_infos.push(file_info);
-        //     }
-        //     Ok(file_infos)
-        // },
-        // Some("gz") | Some("tgz") => {
-        //     let file = fs::File::open(&source).map_err(|e| e.to_string())?;
-        //     let decoder = GzDecoder::new(file);
-        //     let mut archive = Archive::new(decoder);
-        //     let mut file_infos = Vec::new();
-        //     for entry in archive.entries().map_err(|e| e.to_string())? {
-        //         let entry = entry.map_err(|e| e.to_string())?;
-        //         let path = entry.path().map_err(|e| e.to_string())?.into_owned();
-        //         let file_info = FileInfo {
-        //             path: path.to_string_lossy().into_owned(),
-        //             is_dir: entry.header().entry_type().is_dir(),
-        //         };
-        //         file_infos.push(file_info);
-        //     }
-        // Ok(file_infos)
-        // },
-        _ => Err("Unsupported archive type".to_string()),
+    // Use the archive type detector to identify the archive format
+    let archive_type =
+        detect_archive_type(&source_path).ok_or_else(|| "Unsupported archive type".to_string())?;
+
+    if is_zip_based(archive_type) {
+        zip::get_zip_details(source, file_path, state).map_err(|e| e.to_string())
+    } else if is_tar_based(archive_type) {
+        tar::get_tar_details(source, file_path, state).map_err(|e| e.to_string())
+    } else if is_rar_based(archive_type) {
+        get_rar_details(source, file_path, state).map_err(|e| e.to_string())
+    } else {
+        Err("Unsupported archive type".to_string())
     }
 }
 
@@ -99,13 +83,13 @@ async fn extract_files(
     )
     .title("Extraction Progress")
     .resizable(false)
-    .inner_size(400.0, 100.0)
+    .inner_size(420.0, 240.0)
     .build()
     .map_err(|e| e.to_string())?;
 
     // Prepare extraction configuration
     let config = ExtractionConfig {
-        source: archive_path,
+        source: archive_path.clone(),
         destination: output_path,
         selected_files,
         cancel: Arc::new(AtomicBool::new(false)),
@@ -122,36 +106,54 @@ async fn extract_files(
                 println!("Window is ready: {}", window_label);
                 let app_handle_clone = app_handle_clone.clone();
                 let config_clone = config_clone.clone();
-                let source = PathBuf::from(&config_clone.source);
-                match source.extension().and_then(|ext| ext.to_str()) {
-                    Some("zip") => {
-                        match zip::unarchive_zip_file(app_handle_clone, config_clone) {
-                            Ok(_) => {
-                                // Emit completion event
-                                let _ = app_handle.emit("extract-complete", ());
-                            }
-                            Err(e) => {
-                                // Emit error event
-                                let _ = app_handle.emit("extract-error", e);
-                            }
+
+                // Use the archive type detector to identify the archive format
+                let archive_type = match detect_archive_type(&config_clone.source) {
+                    Some(archive_type) => archive_type,
+                    None => {
+                        let _ = app_handle
+                            .emit("extract-error", "Unsupported archive type".to_string());
+                        return;
+                    }
+                };
+
+                if is_zip_based(archive_type) {
+                    match zip::unarchive_zip_file(app_handle_clone, config_clone) {
+                        Ok(_) => {
+                            // Emit completion event
+                            let _ = app_handle.emit("extract-complete", ());
+                        }
+                        Err(e) => {
+                            // Emit error event
+                            let _ = app_handle.emit("extract-error", e);
                         }
                     }
-                    Some("tar") => {
-                        match tar::unarchive_tar_file(app_handle_clone, config_clone) {
-                            Ok(_) => {
-                                // Emit completion event
-                                let _ = app_handle.emit("extract-complete", ());
-                            }
-                            Err(e) => {
-                                // Emit error event
-                                let _ = app_handle.emit("extract-error", e);
-                            }
+                } else if is_tar_based(archive_type) {
+                    match tar::unarchive_tar_file(app_handle_clone, config_clone) {
+                        Ok(_) => {
+                            // Emit completion event
+                            let _ = app_handle.emit("extract-complete", ());
+                        }
+                        Err(e) => {
+                            // Emit error event
+                            let _ = app_handle.emit("extract-error", e);
                         }
                     }
-                    _ => {
-                        // Emit error event for unsupported archive type
-                        let _ = app_handle.emit("extract-error", "Unsupported archive type".to_string());
+                } else if is_rar_based(archive_type) {
+                    match unarchive_rar_file(app_handle_clone, config_clone) {
+                        Ok(_) => {
+                            // Emit completion event
+                            let _ = app_handle.emit("extract-complete", ());
+                        }
+                        Err(e) => {
+                            // Emit error event
+                            let _ = app_handle.emit("extract-error", e);
+                        }
                     }
+                } else {
+                    // Emit error event for unsupported archive type
+                    let _ =
+                        app_handle.emit("extract-error", "Unsupported archive type".to_string());
                 }
             }
         });
@@ -163,20 +165,47 @@ async fn extract_files(
 }
 
 #[tauri::command]
-fn view_file_in_archive(archive_path: String, file_name: String, state: tauri::State<'_, Arc<AppTempDir>>) -> Result<(), String> {
-    let source = PathBuf::from(archive_path.clone());
-    match source.extension().and_then(|ext| ext.to_str()) {
-        Some("zip") => {
-            let _ = view_file_in_zip(archive_path.clone(), file_name, state);
-        }
-        Some("tar") => {
-            let _ = view_file_in_tar(archive_path.clone(), file_name, state);
-        }
-        _ => {}
+fn view_file_in_archive(
+    archive_path: String,
+    file_name: String,
+    state: tauri::State<'_, Arc<AppTempDir>>,
+) -> Result<(), String> {
+    // Use the archive type detector to identify the archive format
+    let archive_type = match detect_archive_type(&archive_path) {
+        Some(archive_type) => archive_type,
+        None => return Err("Unsupported archive type".to_string()),
+    };
+
+    if is_zip_based(archive_type) {
+        view_file_in_zip(archive_path, file_name, state)?;
+    } else if is_tar_based(archive_type) {
+        view_file_in_tar(archive_path, file_name, state)?;
+    } else if is_rar_based(archive_type) {
+        view_file_in_rar(archive_path, file_name, state)?;
     }
     Ok(())
 }
 
+#[tauri::command]
+fn get_image_preview(archive_path: String, file_path: String) -> Result<String, String> {
+    // Use the archive type detector to identify the archive format
+    let archive_type = match detect_archive_type(&archive_path) {
+        Some(archive_type) => archive_type,
+        None => {
+            return Err("Unsupported archive type. Supported formats: .zip, .jar, .apk, .xapk, .ipa, .tar, .tar.gz, .tgz, .tar.bz2, .tbz2".to_string())
+        }
+    };
+
+    if is_zip_based(archive_type) {
+        get_image_preview_from_zip(archive_path, file_path)
+    } else if is_tar_based(archive_type) {
+        get_image_preview_from_tar(archive_path, file_path)
+    } else if is_rar_based(archive_type) {
+        get_image_preview_from_rar(archive_path, file_path)
+    } else {
+        Err("Unsupported archive type. Supported formats: .zip, .jar, .apk, .xapk, .ipa, .tar, .tar.gz, .tgz, .tar.bz2, .tbz2, .rar".to_string())
+    }
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -191,7 +220,10 @@ pub fn run() {
             })?;
 
             // Log the temp directory path for debugging
-            println!("Temporary directory created at: {}", temp_dir.path().display());
+            println!(
+                "Temporary directory created at: {}",
+                temp_dir.path().display()
+            );
 
             // Store the TempDir in the app state
             app.manage(Arc::new(AppTempDir { temp_dir }));
@@ -200,18 +232,22 @@ pub fn run() {
         })
         .on_window_event(|window, event| match event {
             // Cleanup when the last window is closed
-            tauri::WindowEvent::CloseRequested {  .. } => {
+            tauri::WindowEvent::CloseRequested { .. } => {
                 let state = window.state::<Arc<AppTempDir>>();
                 let app_handle = window.app_handle();
                 let windows = app_handle.windows();
                 if windows.len() == 1 {
-                    println!("Cleaning up temporary directory: {}", state.temp_dir.path().display());
+                    println!(
+                        "Cleaning up temporary directory: {}",
+                        state.temp_dir.path().display()
+                    );
                     let temp_dir = &state.temp_dir.path().to_path_buf();
                     // Delete the directory manually
                     if let Err(e) = fs::remove_dir_all(&temp_dir) {
                         eprintln!("Failed to delete temp directory: {}", e);
-                    }                }
-                },
+                    }
+                }
+            }
             _ => {}
         })
         .plugin(tauri_plugin_dialog::init())
@@ -221,7 +257,8 @@ pub fn run() {
             open_file,
             archive_file_details,
             extract_files,
-            view_file_in_archive
+            view_file_in_archive,
+            get_image_preview
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

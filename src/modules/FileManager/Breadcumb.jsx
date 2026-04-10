@@ -27,28 +27,35 @@ const Breadcrumb = ({
   const isInsideArchive = Boolean(currentArchive);
 
   return (
-    <div className="py-2 px-4 bg-white border-b mt-2 rounded-lg overflow-x-auto">
-      <nav className="text-sm text-gray-600 flex items-center flex-wrap gap-y-1 min-w-0">
+    <div className="px-6 py-4 bg-white border-b border-gray-200">
+      <nav className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         {/* ── Filesystem segments ─────────────────────────────────────────── */}
         {fsBreadcrumbParts.map((segment, index) => {
           const isLast =
             index === fsBreadcrumbParts.length - 1 && !isInsideArchive;
           const displayLabel = segment === "" && index === 0 ? "/" : segment;
+          const isRoot = segment === "" && index === 0;
 
           return (
             <React.Fragment key={`fs-${index}`}>
               {index > 0 && <Separator />}
               {isLast ? (
-                <span className="font-semibold text-gray-800 truncate max-w-[160px]">
-                  {displayLabel}
+                <span className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 font-semibold text-gray-900 shadow-sm">
+                  {isRoot && <i className="ri-home-line text-blue-600"></i>}
+                  <span className="truncate max-w-[200px]">{displayLabel}</span>
                 </span>
               ) : (
                 <button
                   onClick={() => onNavigateFsSegment?.(index)}
-                  className="text-blue-500 hover:underline truncate max-w-[160px]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 hover:shadow-md active:scale-95 font-medium group"
                   title={displayLabel}
                 >
-                  {displayLabel}
+                  {isRoot && (
+                    <i className="ri-home-line group-hover:scale-110 transition-transform duration-200"></i>
+                  )}
+                  <span className="truncate max-w-[200px] group-hover:underline">
+                    {displayLabel}
+                  </span>
                 </button>
               )}
             </React.Fragment>
@@ -62,20 +69,24 @@ const Breadcrumb = ({
             {archiveBreadcrumbParts.length === 0 ? (
               /* We are at the archive root — not clickable (already here) */
               <span
-                className="font-semibold text-gray-800 truncate max-w-[160px] flex items-center gap-1"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-100 via-purple-100 to-indigo-100 border-2 border-indigo-300 font-semibold text-gray-900 shadow-md"
                 title={currentArchive}
               >
-                <ArchiveIcon />
-                {archiveFileName}
+                <i className="ri-archive-2-line text-indigo-600"></i>
+                <span className="truncate max-w-[200px]">
+                  {archiveFileName}
+                </span>
               </span>
             ) : (
               <button
                 onClick={() => onNavigateArchiveRoot?.()}
-                className="text-blue-500 hover:underline truncate max-w-[160px] flex items-center gap-1"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-all duration-200 hover:shadow-md active:scale-95 font-medium group"
                 title={currentArchive}
               >
-                <ArchiveIcon />
-                {archiveFileName}
+                <i className="ri-archive-2-line text-indigo-600 group-hover:scale-110 transition-transform duration-200"></i>
+                <span className="truncate max-w-[200px] group-hover:underline">
+                  {archiveFileName}
+                </span>
               </button>
             )}
           </React.Fragment>
@@ -91,18 +102,22 @@ const Breadcrumb = ({
                 <Separator />
                 {isLast ? (
                   <span
-                    className="font-semibold text-gray-800 truncate max-w-[160px]"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 font-semibold text-gray-900 shadow-sm"
                     title={segment}
                   >
-                    {segment}
+                    <i className="ri-folder-line text-blue-600"></i>
+                    <span className="truncate max-w-[200px]">{segment}</span>
                   </span>
                 ) : (
                   <button
                     onClick={() => onNavigateArchiveSegment?.(index)}
-                    className="text-blue-500 hover:underline truncate max-w-[160px]"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 hover:shadow-md active:scale-95 font-medium group"
                     title={segment}
                   >
-                    {segment}
+                    <i className="ri-folder-line text-blue-500 group-hover:scale-110 transition-transform duration-200"></i>
+                    <span className="truncate max-w-[200px] group-hover:underline">
+                      {segment}
+                    </span>
                   </button>
                 )}
               </React.Fragment>
@@ -116,23 +131,7 @@ const Breadcrumb = ({
 /* ── Small helpers ─────────────────────────────────────────────────────────── */
 
 const Separator = () => (
-  <span className="text-gray-400 select-none mx-1">/</span>
-);
-
-const ArchiveIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="inline-block w-4 h-4 shrink-0"
-  >
-    <path d="M8.25 9a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" />
-    <path
-      fillRule="evenodd"
-      d="M3 4.5A1.5 1.5 0 0 1 4.5 3h15A1.5 1.5 0 0 1 21 4.5v15a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19.5v-15Zm1.5 0v15h15v-15h-15Z"
-      clipRule="evenodd"
-    />
-  </svg>
+  <i className="ri-arrow-right-s-line text-gray-300 flex-shrink-0"></i>
 );
 
 export default Breadcrumb;

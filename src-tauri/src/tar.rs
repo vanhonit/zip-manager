@@ -1,5 +1,8 @@
+use bzip2::read::BzDecoder;
+use flate2::read::GzDecoder;
 use open::that_detached;
 use rand::Rng;
+use serde_json;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufReader};
@@ -10,6 +13,31 @@ use tar::Archive;
 use tauri::{AppHandle, Emitter, State};
 
 use crate::data_type::{AppTempDir, ExtractionConfig, ExtractionProgress, FileInfo};
+use crate::utils::detect_archive_type;
+
+/// Helper function to open a tar file with appropriate decompression
+fn open_tar_archive(source_path: &PathBuf) -> Result<Box<dyn std::io::Read>, String> {
+    let file = File::open(source_path).map_err(|e| e.to_string())?;
+    let file_name = source_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("");
+
+    match detect_archive_type(file_name) {
+        Some(crate::utils::ArchiveType::TarGz) | Some(crate::utils::ArchiveType::Tgz) => {
+            let decoder = GzDecoder::new(file);
+            Ok(Box::new(decoder))
+        }
+        Some(crate::utils::ArchiveType::TarBz2) | Some(crate::utils::ArchiveType::Tbz2) => {
+            let decoder = BzDecoder::new(file);
+            Ok(Box::new(decoder))
+        }
+        _ => {
+            // Assume it's an uncompressed tar file
+            Ok(Box::new(file))
+        }
+    }
+}
 
 pub fn get_tar_details(
     source_path: PathBuf,
@@ -27,8 +55,8 @@ pub fn get_tar_details(
         format!("{}/", file_path)
     };
 
-    let file = File::open(&source_path).map_err(|e| e.to_string())?;
-    let mut archive = Archive::new(BufReader::new(file));
+    let reader = open_tar_archive(&source_path)?;
+    let mut archive = Archive::new(BufReader::new(reader));
 
     let mut children: HashMap<String, FileInfo> = HashMap::new();
 
@@ -148,24 +176,39 @@ pub fn get_tar_details(
 }
 
 pub fn unarchive_tar_file(app_handle: AppHandle, config: ExtractionConfig) -> Result<(), String> {
-    // Open the TAR file
-    let file = File::open(&config.source).map_err(|e| e.to_string())?;
-    let reader = BufReader::new(file);
-    let mut archive = Archive::new(reader);
+    // Open the TAR file with appropriate decompression
+    let source_path = PathBuf::from(&config.source);
+    let reader = open_tar_archive(&source_path)?;
+    let mut archive = Archive::new(BufReader::new(reader));
 
-    // Collect all entries
+    // Collect all entries first to count total files to extract
     let entries: Vec<_> = archive
         .entries()
         .map_err(|e| e.to_string())?
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| e.to_string())?;
+
     let selected_files = config.selected_files.unwrap_or_default();
 
+    // Count how many files will be extracted
     let total_files = if !selected_files.is_empty() {
-        selected_files.len()
+        entries
+            .iter()
+            .filter(|entry| {
+                if let Ok(path) = entry.path() {
+                    let path_str = path.to_string_lossy().to_string();
+                    selected_files
+                        .iter()
+                        .any(|selected| path_str.starts_with(selected))
+                } else {
+                    false
+                }
+            })
+            .count()
     } else {
         entries.len()
     };
+
     let progress = ExtractionProgress::new(total_files);
 
     // Create extraction directory if it doesn't exist
@@ -173,55 +216,53 @@ pub fn unarchive_tar_file(app_handle: AppHandle, config: ExtractionConfig) -> Re
         .map_err(|e| format!("Failed to create extraction directory: {}", e))?;
 
     // Extract files with progress tracking and cancellation support
-    entries.into_iter().enumerate().for_each(|(i, mut entry)| {
+    let mut file_count = 0;
+    for entry_result in entries {
         // Check for cancellation
         if config.cancel.load(Ordering::Relaxed) {
-            return;
+            break;
         }
+
+        let mut entry = entry_result;
+
+        let path = entry.path().map_err(|e| e.to_string())?;
+        let path_str = path.to_string_lossy().to_string();
 
         // Check if the file path is in the selected files
         if !selected_files.is_empty() {
-            let file_path = entry.path().unwrap().to_string_lossy().to_string();
             if !selected_files
                 .iter()
-                .any(|selected| file_path.starts_with(selected))
+                .any(|selected| path_str.starts_with(selected))
             {
-                println!("Skipping file: {}", file_path);
-                return;
+                println!("Skipping file: {}", path_str);
+                continue;
             }
         }
-
-        let path = match entry.path() {
-            Ok(p) => p.to_path_buf(),
-            Err(e) => {
-                eprintln!("Failed to get entry path: {}", e);
-                return;
-            }
-        };
 
         let outpath = Path::new(&config.destination).join(&path);
 
         // Create parent directories if necessary
         if let Some(p) = outpath.parent() {
-            if let Err(e) = std::fs::create_dir_all(p) {
-                eprintln!("Failed to create directory: {}", e);
-                return;
-            }
+            std::fs::create_dir_all(p).map_err(|e| format!("Failed to create directory: {}", e))?;
         }
 
         // Write file contents
-        if let Err(e) = entry.unpack(&outpath) {
-            eprintln!("Failed to unpack file: {}", e);
-            return;
-        }
+        entry
+            .unpack(&outpath)
+            .map_err(|e| format!("Failed to unpack file {}: {}", path_str, e))?;
 
         // Update and emit progress
-        {
-            progress.update(i + 1);
-            eprintln!("Extracted {}/{} files", i + 1, total_files);
-            let _ = app_handle.emit("extract-progress", progress.get());
-        }
-    });
+        file_count += 1;
+        progress.update(file_count);
+
+        // Emit progress as JSON object with file count and percentage
+        let progress_value = progress.get();
+        let progress_data = serde_json::json!({
+            "files": file_count,
+            "percentage": progress_value
+        });
+        let _ = app_handle.emit("extract-progress", progress_data);
+    }
 
     Ok(())
 }
@@ -231,10 +272,11 @@ pub fn view_file_in_tar(
     file_name: String,
     state: State<'_, Arc<AppTempDir>>,
 ) -> Result<String, String> {
-    // Open the TAR file
-    let file = File::open(&source).map_err(|e| format!("Failed to open TAR file: {}", e))?;
-    let reader = BufReader::new(file);
-    let mut archive = Archive::new(reader);
+    // Open the TAR file with appropriate decompression
+    let source_path = PathBuf::from(&source);
+    let reader =
+        open_tar_archive(&source_path).map_err(|e| format!("Failed to open TAR file: {}", e))?;
+    let mut archive = Archive::new(BufReader::new(reader));
 
     // Locate the target file
     let mut file_in_tar = None;
@@ -285,4 +327,121 @@ pub fn view_file_in_tar(
 
     // Return the path to the temporary file
     Ok(temp_file_path.to_string_lossy().to_string())
+}
+
+pub fn get_image_preview_from_tar(
+    archive_path: String,
+    file_path: String,
+) -> Result<String, String> {
+    // Validate file path to prevent directory traversal attacks
+    if file_path.contains("..") {
+        return Err("Invalid file path (path traversal detected)".to_string());
+    }
+
+    let file_path_clean = file_path.trim();
+    if file_path_clean.is_empty() {
+        return Err("Empty file path provided".to_string());
+    }
+
+    // Check if it's an image file
+    if !is_image_file_tar(file_path_clean) {
+        return Err("File is not a supported image format. Supported formats: jpg, jpeg, png, gif, webp, bmp, tiff, tif".to_string());
+    }
+
+    // Open the TAR file with appropriate decompression
+    let source_path = PathBuf::from(&archive_path);
+    let reader =
+        open_tar_archive(&source_path).map_err(|e| format!("Failed to open archive: {}", e))?;
+    let mut archive = Archive::new(BufReader::new(reader));
+
+    // Find the target file
+    let mut file_in_tar = None;
+    for entry in archive
+        .entries()
+        .map_err(|e| format!("Failed to read TAR archive: {}", e))?
+    {
+        let entry = entry.map_err(|e| format!("Failed to read entry: {}", e))?;
+        if entry
+            .path()
+            .map_err(|e| format!("Failed to get entry path: {}", e))?
+            .to_string_lossy()
+            == file_path_clean
+        {
+            file_in_tar = Some(entry);
+            break;
+        }
+    }
+
+    let mut tar_file =
+        file_in_tar.ok_or_else(|| format!("File not found in archive: {}", file_path_clean))?;
+
+    // Read the file contents into a vector
+    let mut buffer = Vec::new();
+    io::copy(&mut tar_file, &mut buffer)
+        .map_err(|e| format!("Failed to read file from archive: {}", e))?;
+
+    // Encode to base64
+    let base64_data = base64_encode(&buffer);
+
+    // Determine MIME type from file extension
+    let ext = Path::new(file_path_clean)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+
+    let mime_type = match ext.as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "bmp" => "image/bmp",
+        "tiff" | "tif" => "image/tiff",
+        _ => "image/unknown",
+    };
+
+    // Return as data URL
+    Ok(format!("data:{};base64,{}", mime_type, base64_data))
+}
+
+// Helper function to check if a file is a supported image
+fn is_image_file_tar(file_path: &str) -> bool {
+    const IMAGE_EXTENSIONS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "tif"];
+    let ext = file_path.rsplit('.').next().unwrap_or("").to_lowercase();
+    IMAGE_EXTENSIONS.contains(&ext.as_str())
+}
+
+// Helper function to encode bytes to base64
+fn base64_encode(data: &[u8]) -> String {
+    const BASE64_CHARS: &[u8; 64] =
+        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut result = String::new();
+
+    let mut i = 0;
+    while i < data.len() {
+        let b1 = data[i];
+        let b2 = if i + 1 < data.len() { data[i + 1] } else { 0 };
+        let b3 = if i + 2 < data.len() { data[i + 2] } else { 0 };
+
+        let n = ((b1 as u32) << 16) | ((b2 as u32) << 8) | (b3 as u32);
+
+        result.push(BASE64_CHARS[((n >> 18) & 0x3f) as usize] as char);
+        result.push(BASE64_CHARS[((n >> 12) & 0x3f) as usize] as char);
+
+        if i + 1 < data.len() {
+            result.push(BASE64_CHARS[((n >> 6) & 0x3f) as usize] as char);
+        } else {
+            result.push('=');
+        }
+
+        if i + 2 < data.len() {
+            result.push(BASE64_CHARS[(n & 0x3f) as usize] as char);
+        } else {
+            result.push('=');
+        }
+
+        i += 3;
+    }
+
+    result
 }

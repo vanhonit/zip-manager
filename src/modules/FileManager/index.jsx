@@ -37,9 +37,13 @@ const FileManager = () => {
   const [archivePath, setArchivePath] = useState("");
   const [files, setFiles] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // ── Filesystem navigation ──────────────────────────────────────────────────
   const loadDirectory = async (path) => {
+    setIsLoading(true);
+    setError(null);
     try {
       const result = await invoke("read_directory", { path });
       setFiles(result);
@@ -49,6 +53,10 @@ const FileManager = () => {
       setSelectedFiles([]);
     } catch (err) {
       console.error("loadDirectory error:", err);
+      setError(`Failed to load directory: ${err.message || err}`);
+      setFiles([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,6 +67,8 @@ const FileManager = () => {
    * @param {string} internalPath – path inside the archive, e.g. "" | "folder/" | "a/b/"
    */
   const loadArchiveContents = async (archiveFile, internalPath = "") => {
+    setIsLoading(true);
+    setError(null);
     try {
       const result = await invoke("archive_file_details", {
         sourcePath: archiveFile,
@@ -71,6 +81,10 @@ const FileManager = () => {
       setSelectedFiles([]);
     } catch (err) {
       console.error("loadArchiveContents error:", err);
+      setError(`Failed to load archive contents: ${err.message || err}`);
+      setFiles([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +112,7 @@ const FileManager = () => {
           });
         } catch (err) {
           console.error("view_file_in_archive error:", err);
+          setError(`Failed to view file: ${err.message || err}`);
         }
       }
     } else if (file.is_dir) {
@@ -112,6 +127,7 @@ const FileManager = () => {
         await invoke("open_file", { path: file.path, filePath: null });
       } catch (err) {
         console.error("open_file error:", err);
+        setError(`Failed to open file: ${err.message || err}`);
       }
     }
   };
@@ -126,9 +142,19 @@ const FileManager = () => {
     });
   };
 
+  // ── Select All ─────────────────────────────────────────────────────────────
+  const selectAll = () => {
+    setSelectedFiles([...files]);
+  };
+
+  // ── Deselect All ───────────────────────────────────────────────────────────
+  const deselectAll = () => {
+    setSelectedFiles([]);
+  };
+
   // ── Extract selected files ─────────────────────────────────────────────────
   const extractSelectedFiles = async () => {
-    if (!isArchiveFile(currentArchive)) return;
+    if (!currentArchive || selectedFiles.length === 0) return;
 
     const outputPath = await open({
       directory: true,
@@ -137,16 +163,60 @@ const FileManager = () => {
     });
 
     if (!outputPath) {
-      alert("No destination folder selected.");
       return;
     }
 
-    await invoke("extract_files", {
-      archivePath: currentArchive,
-      selectedFiles: selectedFiles.map((f) => f.path),
-      outputPath,
-    });
+    setIsLoading(true);
+    setError(null);
+    try {
+      await invoke("extract_files", {
+        archivePath: currentArchive,
+        selectedFiles: selectedFiles.map((f) => f.path),
+        outputPath,
+      });
+    } catch (err) {
+      console.error("extract_files error:", err);
+      setError(`Failed to extract files: ${err.message || err}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // ── View selected file in archive ──────────────────────────────────────────
+  const viewSelectedFile = async () => {
+    if (!currentArchive || selectedFiles.length !== 1) return;
+
+    const file = selectedFiles[0];
+    if (file.is_dir) return;
+
+    try {
+      await invoke("view_file_in_archive", {
+        archivePath: currentArchive,
+        fileName: file.path.replace(/\/$/, ""),
+      });
+    } catch (err) {
+      console.error("view_file_in_archive error:", err);
+      setError(`Failed to view file: ${err.message || err}`);
+    }
+  };
+
+  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Escape to deselect all
+      if (e.key === "Escape") {
+        deselectAll();
+      }
+      // Delete key to delete selected files (placeholder for future implementation)
+      // if (e.key === "Delete" && selectedFiles.length > 0) {
+      //   // TODO: Implement delete functionality
+      //   console.log("Delete key pressed");
+      // }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedFiles]);
 
   // ── Initial load from CLI args or home dir ─────────────────────────────────
   useEffect(() => {
@@ -207,22 +277,93 @@ const FileManager = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 min-h-screen">
-      <Toolbar onExtract={extractSelectedFiles} />
-      <Breadcrumb
-        fsBreadcrumbParts={fsBreadcrumbParts}
-        currentArchive={currentArchive}
-        archiveBreadcrumbParts={archiveBreadcrumbParts}
-        onNavigateFsSegment={onNavigateFsSegment}
-        onNavigateArchiveRoot={onNavigateArchiveRoot}
-        onNavigateArchiveSegment={onNavigateArchiveSegment}
-      />
-      <FileList
-        files={files}
-        onOpenFile={onOpenFile}
-        selectedFiles={selectedFiles}
-        onSelect={selectFile}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-3 sm:p-2 lg:p-6">
+        {/* Main Container */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-xl">
+          {/* Toolbar */}
+          <Toolbar
+            onExtract={extractSelectedFiles}
+            onView={viewSelectedFile}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            selectedCount={selectedFiles.length}
+            totalCount={files.length}
+            isInArchive={!!currentArchive}
+            disabled={isLoading}
+          />
+
+          {/* Breadcrumb */}
+          <Breadcrumb
+            fsBreadcrumbParts={fsBreadcrumbParts}
+            currentArchive={currentArchive}
+            archiveBreadcrumbParts={archiveBreadcrumbParts}
+            onNavigateFsSegment={onNavigateFsSegment}
+            onNavigateArchiveRoot={onNavigateArchiveRoot}
+            onNavigateArchiveSegment={onNavigateArchiveSegment}
+          />
+
+          {/* Error Display */}
+          {error && (
+            <div className="mx-4 my-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <i className="ri-alert-line text-2xl text-red-500 flex-shrink-0 mt-0.5"></i>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-red-800 mb-1">
+                  Error
+                </h3>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700 transition-colors"
+                title="Dismiss"
+              >
+                <i className="ri-close-line text-lg"></i>
+              </button>
+            </div>
+          )}
+
+          {/* Loading Spinner */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-500 mb-4"></div>
+                <p className="text-gray-600 font-medium">Loading...</p>
+              </div>
+            </div>
+          )}
+
+          {/* File List */}
+          {!isLoading && (
+            <FileList
+              files={files}
+              onOpenFile={onOpenFile}
+              selectedFiles={selectedFiles}
+              onSelect={selectFile}
+              isLoading={isLoading}
+              currentArchive={currentArchive}
+            />
+          )}
+        </div>
+
+        {/* Keyboard Shortcuts Help */}
+        {/* <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex flex-wrap gap-3 text-xs text-blue-800">
+            <div className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 bg-white border border-blue-300 rounded text-xs font-mono">
+                Esc
+              </kbd>
+              <span>Deselect</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 bg-white border border-blue-300 rounded text-xs font-mono">
+                Double Click
+              </kbd>
+              <span>Open</span>
+            </div>
+          </div>
+        </div>*/}
+      </div>
     </div>
   );
 };
