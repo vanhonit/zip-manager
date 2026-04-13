@@ -5,7 +5,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import Breadcrumb from "./Breadcumb";
 import { homeDir } from "@tauri-apps/api/path";
+import { listen } from "@tauri-apps/api/event";
 import { getMatches } from "@tauri-apps/plugin-cli";
+import ChecksumModal from "../Checksum/ChecksumModal";
 
 function isArchiveFile(fileName) {
   if (!fileName || typeof fileName !== "string") return false;
@@ -39,6 +41,8 @@ const FileManager = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Path of the file to show checksum modal for (null = hidden)
+  const [checksumFilePath, setChecksumFilePath] = useState(null);
 
   // ── Filesystem navigation ──────────────────────────────────────────────────
   const loadDirectory = async (path) => {
@@ -200,6 +204,12 @@ const FileManager = () => {
     }
   };
 
+  // ── Show checksum modal for the current archive ────────────────────────────
+  const showChecksum = () => {
+    if (!currentArchive) return;
+    setChecksumFilePath(currentArchive);
+  };
+
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -232,6 +242,23 @@ const FileManager = () => {
         homeDir().then((dir) => loadDirectory(dir));
       }
     });
+  }, []);
+
+  // ── Handle file-open events (e.g. double-clicking an archive in Finder) ────
+  useEffect(() => {
+    const unlisten = listen("file-open", (event) => {
+      const path = event.payload;
+      if (typeof path === "string" && path.length > 0) {
+        if (isArchiveFile(path)) {
+          loadArchiveContents(path, "");
+        } else {
+          loadDirectory(path);
+        }
+      }
+    });
+    return () => {
+      unlisten.then((fn) => fn());
+    };
   }, []);
 
   // ── Breadcrumb navigation helpers ──────────────────────────────────────────
@@ -285,11 +312,13 @@ const FileManager = () => {
           <Toolbar
             onExtract={extractSelectedFiles}
             onView={viewSelectedFile}
+            onChecksum={showChecksum}
             onSelectAll={selectAll}
             onDeselectAll={deselectAll}
             selectedCount={selectedFiles.length}
             totalCount={files.length}
             isInArchive={!!currentArchive}
+            hasArchivePath={!!currentArchive}
             disabled={isLoading}
           />
 
@@ -364,6 +393,14 @@ const FileManager = () => {
           </div>
         </div>*/}
       </div>
+
+      {/* Checksum Modal */}
+      {checksumFilePath && (
+        <ChecksumModal
+          filePath={checksumFilePath}
+          onClose={() => setChecksumFilePath(null)}
+        />
+      )}
     </div>
   );
 };

@@ -14,7 +14,8 @@
       {
         "title": "Rusty Compress",
         "width": 800,
-        "height": 650
+        "height": 650,
+        "resizable": false
       }
     ],
     "security": {
@@ -31,7 +32,6 @@
           "takesValue": true
         }
       ]
-      
     }
   },
   "bundle": {
@@ -43,6 +43,26 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      {
+        "name": "Zip Archive",
+        "description": "Zip archive file",
+        "ext": ["zip", "jar", "apk", "xapk", "ipa"],
+        "role": "Viewer"
+      },
+      {
+        "name": "Tar Archive",
+        "description": "Tar archive file",
+        "ext": ["tar", "tgz", "tar.gz", "tbz2", "tar.bz2"],
+        "role": "Viewer"
+      },
+      {
+        "name": "Rar Archive",
+        "description": "Rar archive file",
+        "ext": ["rar"],
+        "role": "Viewer"
+      }
     ]
   }
 }

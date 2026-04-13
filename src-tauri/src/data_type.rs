@@ -1,6 +1,12 @@
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use tempfile::TempDir;
+
+#[derive(serde::Serialize)]
+pub struct SingleChecksum {
+    pub algorithm: String,
+    pub hash: String,
+}
 #[derive(serde::Serialize)]
 pub struct FileInfo {
     pub name: String,
