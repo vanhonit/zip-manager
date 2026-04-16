@@ -13,9 +13,11 @@
     "windows": [
       {
         "title": "Rusty Compress",
-        "width": 800,
-        "height": 650,
-        "resizable": false
+        "width": 900,
+        "height": 700,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true
       }
     ],
     "security": {

@@ -8,6 +8,7 @@ import { homeDir } from "@tauri-apps/api/path";
 import { listen } from "@tauri-apps/api/event";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import ChecksumModal from "../Checksum/ChecksumModal";
+import PropertiesModal from "./PropertiesModal";
 
 function isArchiveFile(fileName) {
   if (!fileName || typeof fileName !== "string") return false;
@@ -41,8 +42,18 @@ const FileManager = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   // Path of the file to show checksum modal for (null = hidden)
   const [checksumFilePath, setChecksumFilePath] = useState(null);
+  // File to show properties for (null = hidden)
+  const [propertiesFile, setPropertiesFile] = useState(null);
+
+  // Filter files based on search query
+  const filteredFiles = files.filter(file => {
+    if (!searchQuery || searchQuery.trim() === "") return true;
+    const query = searchQuery.toLowerCase().trim();
+    return file.name.toLowerCase().includes(query);
+  });
 
   // ── Filesystem navigation ──────────────────────────────────────────────────
   const loadDirectory = async (path) => {
@@ -55,6 +66,7 @@ const FileManager = () => {
       setCurrentArchive("");
       setArchivePath("");
       setSelectedFiles([]);
+      setSearchQuery("");
     } catch (err) {
       console.error("loadDirectory error:", err);
       setError(`Failed to load directory: ${err.message || err}`);
@@ -83,6 +95,7 @@ const FileManager = () => {
       setArchivePath(internalPath || "");
       setCurrentPath("");
       setSelectedFiles([]);
+      setSearchQuery("");
     } catch (err) {
       console.error("loadArchiveContents error:", err);
       setError(`Failed to load archive contents: ${err.message || err}`);
@@ -98,6 +111,7 @@ const FileManager = () => {
    */
   const navigateInArchive = (internalPath) => {
     loadArchiveContents(currentArchive, internalPath);
+    setSearchQuery("");
   };
 
   // ── Double-click handler ───────────────────────────────────────────────────
@@ -149,6 +163,17 @@ const FileManager = () => {
   // ── Select All ─────────────────────────────────────────────────────────────
   const selectAll = () => {
     setSelectedFiles([...files]);
+  };
+
+  // ── Open selected item ───────────────────────────────────────────────────────
+  const openSelected = async () => {
+    if (selectedFiles.length !== 1) return;
+    await onOpenFile(selectedFiles[0]);
+  };
+
+  // ── Show properties for a file ──────────────────────────────────────────────
+  const showProperties = (file) => {
+    setPropertiesFile(file);
   };
 
   // ── Deselect All ───────────────────────────────────────────────────────────
@@ -213,9 +238,35 @@ const FileManager = () => {
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Enter to open selected item
+      if (e.key === "Enter" && selectedFiles.length === 1) {
+        e.preventDefault();
+        openSelected();
+      }
       // Escape to deselect all
-      if (e.key === "Escape") {
+      else if (e.key === "Escape") {
         deselectAll();
+      }
+      // Backspace to go up in navigation
+      else if (e.key === "Backspace" && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        if (currentArchive && archivePath) {
+          // Go up in archive navigation
+          const parts = archivePath.split("/").filter(Boolean);
+          if (parts.length > 0) {
+            parts.pop(); // Remove last segment
+            const newPath = parts.length > 0 ? parts.join("/") + "/" : "";
+            loadArchiveContents(currentArchive, newPath);
+          }
+        } else if (currentPath && currentPath !== "/") {
+          // Go up in filesystem navigation
+          const parts = currentPath.split("/").filter(Boolean);
+          if (parts.length > 0) {
+            parts.pop(); // Remove last segment
+            const newPath = "/" + parts.join("/");
+            loadDirectory(newPath || "/");
+          }
+        }
       }
       // Delete key to delete selected files (placeholder for future implementation)
       // if (e.key === "Delete" && selectedFiles.length > 0) {
@@ -226,7 +277,7 @@ const FileManager = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedFiles]);
+  }, [selectedFiles, currentPath, currentArchive, archivePath]);
 
   // ── Initial load from CLI args or home dir ─────────────────────────────────
   useEffect(() => {
@@ -283,6 +334,7 @@ const FileManager = () => {
   const onNavigateFsSegment = (segmentIndex) => {
     const path = fsBreadcrumbParts.slice(0, segmentIndex + 1).join("/") || "/";
     loadDirectory(path);
+    setSearchQuery("");
   };
 
   /**
@@ -290,6 +342,7 @@ const FileManager = () => {
    */
   const onNavigateArchiveRoot = () => {
     loadArchiveContents(currentArchive, "");
+    setSearchQuery("");
   };
 
   /**
@@ -304,94 +357,156 @@ const FileManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-3 sm:p-2 lg:p-6">
+    <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-hidden flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="shrink-0 bg-white/80 backdrop-blur-sm shadow-lg border-b border-blue-100 overflow-hidden">
+          <div className="px-4 py-2 sm:px-6 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <i className="ri-archive-2-line text-xl sm:text-2xl text-white"></i>
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-bold text-white">Rusty Compress</h1>
+                  <p className="text-xs sm:text-sm text-blue-100">Archive Manager</p>
+                </div>
+              </div>
+              <div className="hidden md:flex items-center gap-2 text-white/80 text-xs sm:text-sm">
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Esc</kbd>
+                <span>Deselect</span>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Enter</kbd>
+                <span>Open</span>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Click</kbd>
+                <span>Select</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Main Container */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-xl">
+        <div className="flex-1 flex flex-col bg-white overflow-hidden">
           {/* Toolbar */}
-          <Toolbar
-            onExtract={extractSelectedFiles}
-            onView={viewSelectedFile}
-            onChecksum={showChecksum}
-            onSelectAll={selectAll}
-            onDeselectAll={deselectAll}
-            selectedCount={selectedFiles.length}
-            totalCount={files.length}
-            isInArchive={!!currentArchive}
-            hasArchivePath={!!currentArchive}
-            disabled={isLoading}
-          />
+          <div className="shrink-0">
+            <Toolbar
+              onExtract={extractSelectedFiles}
+              onView={viewSelectedFile}
+              onOpen={openSelected}
+              onChecksum={showChecksum}
+              onSelectAll={selectAll}
+              onDeselectAll={deselectAll}
+              selectedCount={selectedFiles.length}
+              totalCount={files.length}
+              isInArchive={!!currentArchive}
+              hasArchivePath={!!currentArchive}
+              disabled={isLoading}
+              onSearchChange={setSearchQuery}
+              searchQuery={searchQuery}
+            />
+          </div>
 
           {/* Breadcrumb */}
-          <Breadcrumb
-            fsBreadcrumbParts={fsBreadcrumbParts}
-            currentArchive={currentArchive}
-            archiveBreadcrumbParts={archiveBreadcrumbParts}
-            onNavigateFsSegment={onNavigateFsSegment}
-            onNavigateArchiveRoot={onNavigateArchiveRoot}
-            onNavigateArchiveSegment={onNavigateArchiveSegment}
-          />
+          <div className="shrink-0">
+            <Breadcrumb
+              fsBreadcrumbParts={fsBreadcrumbParts}
+              currentArchive={currentArchive}
+              archiveBreadcrumbParts={archiveBreadcrumbParts}
+              onNavigateFsSegment={onNavigateFsSegment}
+              onNavigateArchiveRoot={onNavigateArchiveRoot}
+              onNavigateArchiveSegment={onNavigateArchiveSegment}
+            />
+          </div>
 
           {/* Error Display */}
           {error && (
-            <div className="mx-4 my-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <i className="ri-alert-line text-2xl text-red-500 flex-shrink-0 mt-0.5"></i>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-red-800 mb-1">
+            <div className="mx-4 my-4 p-3 sm:p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl flex items-start gap-2 sm:gap-3 shadow-sm animate-pulse shrink-0">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i className="ri-alert-line text-base sm:text-lg text-red-600"></i>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xs sm:text-sm font-semibold text-red-800 mb-1">
                   Error
                 </h3>
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-xs sm:text-sm text-red-700 break-words">{error}</p>
               </div>
               <button
                 onClick={() => setError(null)}
-                className="text-red-500 hover:text-red-700 transition-colors"
+                className="text-red-500 hover:text-red-700 transition-colors p-1 hover:bg-red-100 rounded flex-shrink-0"
                 title="Dismiss"
               >
-                <i className="ri-close-line text-lg"></i>
+                <i className="ri-close-line text-base sm:text-xl"></i>
               </button>
             </div>
           )}
 
           {/* Loading Spinner */}
           {isLoading && (
-            <div className="flex items-center justify-center py-16">
+            <div className="flex items-center justify-center py-10 sm:py-20 bg-gradient-to-b from-gray-50 to-white flex-1">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-500 mb-4"></div>
-                <p className="text-gray-600 font-medium">Loading...</p>
+                <div className="relative mb-4 sm:mb-6">
+                  <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                    <i className="ri-refresh-line text-xl sm:text-2xl text-white animate-spin"></i>
+                  </div>
+                </div>
+                <p className="text-gray-600 font-medium text-base sm:text-lg">Loading files...</p>
+                <p className="text-gray-400 text-xs sm:text-sm mt-1">Please wait a moment</p>
               </div>
             </div>
           )}
 
           {/* File List */}
           {!isLoading && (
-            <FileList
-              files={files}
-              onOpenFile={onOpenFile}
-              selectedFiles={selectedFiles}
-              onSelect={selectFile}
-              isLoading={isLoading}
-              currentArchive={currentArchive}
-            />
+            <div className="flex-1 overflow-hidden">
+              <FileList
+                files={filteredFiles}
+                onOpenFile={onOpenFile}
+                selectedFiles={selectedFiles}
+                onSelect={selectFile}
+                isLoading={isLoading}
+                currentArchive={currentArchive}
+                onShowProperties={showProperties}
+              />
+            </div>
+          )}
+
+          {/* Status Bar */}
+          {files.length > 0 && (
+            <div className="shrink-0 bg-gradient-to-r from-gray-50 to-blue-50 border-t border-blue-200 px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <i className="ri-file-list-3-line text-gray-500 text-sm sm:text-base"></i>
+                  <span className="text-gray-700 font-medium text-xs sm:text-sm">
+                    {searchQuery ? `${filteredFiles.length} of ${files.length}` : `${files.length}`} items
+                  </span>
+                </div>
+                {selectedFiles.length > 0 && (
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="text-gray-300">|</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <i className="ri-checkbox-circle-line text-blue-500 text-sm sm:text-base"></i>
+                      <span className="text-blue-700 font-medium text-xs sm:text-sm">{selectedFiles.length} selected</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="hidden sm:flex items-center gap-3 sm:gap-4 text-gray-500 text-xs sm:text-sm">
+                <div className="flex items-center gap-1">
+                  <i className="ri-mouse-line"></i>
+                  <span>Click to select</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Enter</kbd>
+                  <span>to open</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Esc</kbd>
+                  <span>deselect</span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Keyboard Shortcuts Help */}
-        {/* <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex flex-wrap gap-3 text-xs text-blue-800">
-            <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-white border border-blue-300 rounded text-xs font-mono">
-                Esc
-              </kbd>
-              <span>Deselect</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-white border border-blue-300 rounded text-xs font-mono">
-                Double Click
-              </kbd>
-              <span>Open</span>
-            </div>
-          </div>
-        </div>*/}
       </div>
 
       {/* Checksum Modal */}
@@ -399,6 +514,15 @@ const FileManager = () => {
         <ChecksumModal
           filePath={checksumFilePath}
           onClose={() => setChecksumFilePath(null)}
+        />
+      )}
+
+      {/* Properties Modal */}
+      {propertiesFile && (
+        <PropertiesModal
+          file={propertiesFile}
+          currentArchive={currentArchive}
+          onClose={() => setPropertiesFile(null)}
         />
       )}
     </div>

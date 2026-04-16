@@ -172,6 +172,7 @@ const FileItem = ({
   onSelect,
   onOpenFile,
   currentArchive,
+  onShowProperties,
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -275,17 +276,17 @@ const FileItem = ({
     <>
       <div
         className={`
-          flex items-center px-6 py-3 border-b border-gray-100
-          cursor-pointer transition-all duration-200 ease-in-out
+          flex items-center px-4 sm:px-6 py-2.5 sm:py-3.5 border-b border-gray-100
+          cursor-pointer transition-all duration-300 ease-in-out
           ${bgClass}
           ${
             selected
-              ? "border-l-4 border-l-blue-500 shadow-sm"
-              : "border-l-4 border-l-transparent"
+              ? "border-l-3 sm:border-l-4 border-l-blue-500 shadow-md"
+              : "border-l-3 sm:border-l-4 border-l-transparent hover:border-l-blue-200"
           }
           ${isOpening ? "opacity-60 pointer-events-none" : ""}
           hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50
-          hover:shadow-md hover:z-10
+          hover:shadow-lg hover:z-10 hover:-translate-y-px
         `}
         onClick={handleRowClick}
         onDoubleClick={handleDoubleClick}
@@ -294,30 +295,32 @@ const FileItem = ({
         onMouseLeave={() => setShowPreview(false)}
       >
         {/* Checkbox Column */}
-        <div className="w-5 mr-4 flex items-center justify-center">
+        <div className="w-4 sm:w-5 mr-3 sm:mr-4 flex items-center justify-center flex-shrink-0">
           <div
             onClick={handleCheckboxClick}
             className={`
-              w-5 h-5 rounded border-2 flex items-center justify-center
-              transition-all duration-200 cursor-pointer
+              relative w-4 h-4 sm:w-5 sm:h-5 rounded-lg border-2 flex items-center justify-center
+              transition-all duration-300 cursor-pointer
               ${
                 selected
-                  ? "bg-blue-500 border-blue-500 shadow-sm"
-                  : "bg-white border-gray-300 hover:border-blue-400"
+                  ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-500 shadow-md"
+                  : "bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm"
               }
             `}
           >
-            {selected && <i className="ri-check-line text-white"></i>}
+            {selected && (
+              <i className="ri-check-line text-white text-xs sm:text-sm relative z-10"></i>
+            )}
           </div>
         </div>
 
         {/* File Icon and Name */}
         <div className="flex-1 flex items-center min-w-0 group">
-          <div className="w-6 h-6 mr-3 flex items-center justify-center flex-shrink-0">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 flex items-center justify-center flex-shrink-0">
             <FileIcon
               extension={fileExtension}
-              width={24}
-              height={24}
+              width={20}
+              height={20}
               isDir={file.is_dir}
             />
           </div>
@@ -326,7 +329,7 @@ const FileItem = ({
             <p
               ref={fileNameRef}
               className={`
-                text-sm font-medium truncate
+                text-xs sm:text-sm font-medium truncate
                 ${selected ? "text-blue-900" : "text-gray-800"}
                 group-hover:text-blue-700
               `}
@@ -347,25 +350,25 @@ const FileItem = ({
 
           {/* File type badge for selected items */}
           {selected && !file.is_dir && (
-            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+            <span className="ml-1 sm:ml-2 px-1.5 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 text-xs font-bold rounded-full shadow-sm border border-blue-200">
               {fileExtension.toUpperCase()}
             </span>
           )}
         </div>
 
         {/* Date Modified Column */}
-        <div className="w-40 hidden md:block">
+        <div className="w-24 sm:w-40 hidden md:block">
           <p
-            className={`text-xs ${selected ? "text-blue-800" : "text-gray-500"}`}
+            className={`text-xs font-medium ${selected ? "text-blue-800" : "text-gray-500"}`}
           >
             {file.last_modified}
           </p>
         </div>
 
         {/* Type Column */}
-        <div className="w-32 hidden lg:block">
+        <div className="w-20 sm:w-32 hidden lg:block">
           <p
-            className={`text-xs truncate ${selected ? "text-blue-800" : "text-gray-500"}`}
+            className={`text-xs font-medium truncate ${selected ? "text-blue-800" : "text-gray-500"}`}
             title={applicationName}
           >
             {applicationName}
@@ -373,12 +376,12 @@ const FileItem = ({
         </div>
 
         {/* Size Column */}
-        <div className="w-28 text-right">
+        <div className="w-16 sm:w-28 text-right">
           <span
-            className={`text-sm font-medium ${selected ? "text-blue-900" : "text-gray-600"}`}
+            className={`text-xs sm:text-sm font-bold ${selected ? "text-blue-900" : "text-gray-600"}`}
           >
             {file.is_dir ? (
-              <span className="text-gray-400 text-xs">—</span>
+              <span className="text-gray-400 text-xs font-medium">—</span>
             ) : (
               formatFileSize(file.size)
             )}
@@ -387,40 +390,46 @@ const FileItem = ({
 
         {/* Loading or Selection indicator */}
         {isOpening && (
-          <div className="ml-3 flex-shrink-0">
-            <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
+          <div className="ml-2 sm:ml-3 flex-shrink-0">
+            <div className="w-3.5 h-3.5 sm:w-5 sm:h-5 border-2 border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         )}
         {!isOpening && selected && (
-          <div className="ml-3 flex-shrink-0">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          <div className="ml-2 sm:ml-3 flex-shrink-0">
+            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full animate-pulse shadow-md"></div>
           </div>
         )}
       </div>
 
       {/* Image Preview on Hover */}
       {showPreview && isImage && !file.is_dir && (
-        <div className="fixed z-50 pointer-events-none transform -translate-x-1/2 left-1/2 top-20">
-          <div className="bg-white rounded-lg shadow-2xl border-2 border-blue-300 p-2 max-w-md">
-            <div className="text-xs text-gray-600 mb-2 px-2 font-medium">
-              Preview: {file.name}
+        <div className="fixed z-50 pointer-events-none transform -translate-x-1/2 left-1/2 top-24">
+          <div className="bg-white rounded-2xl shadow-2xl border-2 border-blue-200 p-3 max-w-md backdrop-blur-sm bg-white/95">
+            <div className="flex items-center justify-between mb-2 px-2">
+              <div className="flex items-center gap-2">
+                <i className="ri-image-line text-blue-500"></i>
+                <span className="text-xs font-bold text-gray-800">Preview</span>
+              </div>
+              <span className="text-xs text-gray-500 truncate max-w-[200px]" title={file.name}>
+                {file.name}
+              </span>
             </div>
-            <div className="bg-gray-100 rounded flex items-center justify-center p-4 max-h-64">
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl flex items-center justify-center p-6 max-h-72 min-h-[200px]">
               {previewLoading ? (
                 <div className="text-gray-400 text-sm flex flex-col items-center">
-                  <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                  <p className="text-xs mt-2">Loading...</p>
+                  <div className="w-10 h-10 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+                  <p className="text-sm font-medium text-gray-600">Loading preview...</p>
                 </div>
               ) : previewImage ? (
                 <img
                   src={previewImage}
                   alt={file.name}
-                  className="max-w-full max-h-64 rounded object-contain"
+                  className="max-w-full max-h-72 rounded-lg object-contain shadow-md"
                 />
               ) : (
-                <div className="text-gray-400 text-sm">
-                  <i className="ri-image-line text-4xl mx-auto"></i>
-                  <p className="text-xs mt-2">Image preview</p>
+                <div className="text-gray-400 text-sm flex flex-col items-center">
+                  <i className="ri-image-line text-5xl mx-auto text-gray-300 mb-2"></i>
+                  <p className="text-xs text-gray-500">Unable to load preview</p>
                 </div>
               )}
             </div>
@@ -428,27 +437,35 @@ const FileItem = ({
         </div>
       )}
 
-      {/* Context Menu Placeholder */}
+      {/* Context Menu */}
       {showContextMenu && (
         <div
-          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-[200px]"
+          className="fixed z-50 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 py-2 min-w-[220px] overflow-hidden"
           style={{
             left: `${contextMenuPosition.x}px`,
             top: `${contextMenuPosition.y}px`,
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors">
-            <i className="ri-eye-line"></i>
-            Open
+          <button
+            onClick={() => {
+              onOpenFile(file);
+              setShowContextMenu(false);
+            }}
+            className="w-full px-4 py-3 text-left text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 flex items-center gap-3 transition-all duration-200"
+          >
+            <i className="ri-eye-line text-blue-500"></i>
+            <span className="font-medium">Open</span>
           </button>
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors">
-            <i className="ri-file-line"></i>
-            Properties
-          </button>
-          <hr className="my-1 border-gray-200" />
-          <button className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 hover:text-red-700 flex items-center gap-2 transition-colors">
-            <i className="ri-delete-bin-line"></i>
-            Delete
+          <button
+            onClick={() => {
+              onShowProperties(file);
+              setShowContextMenu(false);
+            }}
+            className="w-full px-4 py-3 text-left text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 flex items-center gap-3 transition-all duration-200"
+          >
+            <i className="ri-file-info-line text-indigo-500"></i>
+            <span className="font-medium">Properties</span>
           </button>
         </div>
       )}

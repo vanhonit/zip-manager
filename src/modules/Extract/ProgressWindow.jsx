@@ -47,15 +47,15 @@ function ProgressWindow({ name }) {
   }, [name]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3">
+    <div className="w-full h-full flex flex-col bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-3 sm:p-4 overflow-hidden">
       {/* Header */}
-      <div className="mb-2">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-1 bg-blue-500 bg-opacity-20 rounded-lg">
-            <i className="ri-download-cloud-line text-blue-400 text-xl"></i>
+      <div className="shrink-0 mb-3 sm:mb-4">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+            <i className="ri-download-cloud-line text-white text-xl sm:text-2xl"></i>
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xs font-bold text-white">Extracting Archive</h1>
+            <h1 className="text-xs sm:text-sm font-bold text-white mb-0.5 sm:mb-1">Extracting Archive</h1>
             <p className="text-xs text-slate-400 truncate">{fileName}</p>
           </div>
         </div>
@@ -63,66 +63,72 @@ function ProgressWindow({ name }) {
 
       {/* Error State */}
       {error && (
-        <div className="mb-2 p-2 bg-red-500 bg-opacity-10 border border-red-500 border-opacity-30 rounded-lg">
-          <p className="text-red-300 text-xs font-medium">Error</p>
-          <p className="text-red-200 text-xs mt-0.5">{error}</p>
+        <div className="shrink-0 mb-3 sm:mb-4 p-2 sm:p-3 bg-red-500 bg-opacity-10 border-2 border-red-500 border-opacity-30 rounded-xl animate-pulse">
+          <p className="text-red-300 text-xs sm:text-sm font-bold mb-1">Error</p>
+          <p className="text-red-200 text-xs sm:text-sm">{error}</p>
         </div>
       )}
 
       {/* Progress Bar */}
-      <div className="mb-2">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-slate-300">Progress</span>
-          <span className="text-xs font-semibold text-blue-400">
+      <div className="shrink-0 mb-3 sm:mb-4">
+        <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+          <span className="text-xs sm:text-sm font-bold text-slate-300">Progress</span>
+          <span className="text-xs sm:text-sm font-bold text-blue-400">
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-slate-700 rounded-full h-2 sm:h-3 overflow-hidden shadow-inner">
           <div
-            className="bg-gradient-to-r from-blue-500 to-blue-400 h-full transition-all duration-300 ease-out rounded-full"
+            className="bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 h-full transition-all duration-500 ease-out rounded-full shadow-lg shadow-blue-500/50"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
       </div>
 
       {/* Files Counter */}
-      <div className="text-xs text-slate-400 mb-3">
-        <span className="font-medium text-slate-300">{filesExtracted}</span>{" "}
-        files extracted
+      <div className="shrink-0 text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+        <i className="ri-file-zip-line text-blue-400 text-sm sm:text-base"></i>
+        <span className="font-bold text-slate-300">{filesExtracted}</span>
+        <span>files extracted</span>
       </div>
 
       {/* Status Messages */}
-      <div className="space-y-2 flex-1">
+      <div className="flex-1 space-y-2 sm:space-y-3 overflow-y-auto">
         {!isComplete && !error && (
-          <div className="flex items-start gap-2 p-2 bg-blue-500 bg-opacity-10 rounded-lg border border-blue-500 border-opacity-20">
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-500 bg-opacity-10 rounded-xl border-2 border-blue-500 border-opacity-20">
             <div className="flex-shrink-0 mt-0.5">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse shadow-lg shadow-blue-500/50"></div>
             </div>
-            <p className="text-xs text-blue-300">Extracting files...</p>
+            <div>
+              <p className="text-xs sm:text-sm text-blue-300 font-medium">Extracting files...</p>
+              <p className="text-xs text-blue-400 mt-1">Please wait while we process your files</p>
+            </div>
           </div>
         )}
 
         {isComplete && (
-          <div className="flex items-start gap-2 p-2 bg-green-500 bg-opacity-10 rounded-lg border border-green-500 border-opacity-20">
-            <i className="ri-check-line text-green-400 text-lg flex-shrink-0"></i>
-            <p className="text-xs text-green-300 font-medium">
-              Extraction complete!
-            </p>
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-green-500 bg-opacity-10 rounded-xl border-2 border-green-500 border-opacity-20">
+            <i className="ri-checkbox-circle-line text-green-400 text-xl sm:text-2xl flex-shrink-0"></i>
+            <div>
+              <p className="text-xs sm:text-sm text-green-300 font-bold">Extraction complete!</p>
+              <p className="text-xs text-green-400 mt-1">All files have been extracted successfully</p>
+            </div>
           </div>
         )}
 
         {error && (
-          <div className="flex items-start gap-2 p-2 bg-red-500 bg-opacity-10 rounded-lg border border-red-500 border-opacity-20">
-            <i className="ri-close-line text-red-400 text-lg flex-shrink-0"></i>
-            <p className="text-xs text-red-300 font-medium">
-              Extraction failed
-            </p>
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-red-500 bg-opacity-10 rounded-xl border-2 border-red-500 border-opacity-20">
+            <i className="ri-error-warning-line text-red-400 text-xl sm:text-2xl flex-shrink-0"></i>
+            <div>
+              <p className="text-xs sm:text-sm text-red-300 font-bold">Extraction failed</p>
+              <p className="text-xs text-red-400 mt-1">Please check the error message above</p>
+            </div>
           </div>
         )}
       </div>
 
       {/* Footer Info */}
-      <div className="mt-2 text-xs text-slate-500 border-t border-slate-700 pt-2">
+      <div className="shrink-0 mt-2 sm:mt-4 text-xs text-slate-500 border-t border-slate-700 pt-2 sm:pt-3">
         <p>Extracting to your selected destination...</p>
       </div>
     </div>
