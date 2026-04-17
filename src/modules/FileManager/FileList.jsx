@@ -9,6 +9,7 @@ const FileList = ({
   isLoading,
   currentArchive,
   onShowProperties,
+  onCreateArchive,
 }) => {
   const selectedCount = selectedFiles?.length || 0;
   const totalCount = files?.length || 0;
@@ -47,7 +48,8 @@ const FileList = ({
         No Files Found
       </h3>
       <p className="text-xs sm:text-sm text-gray-500 text-center max-w-sm sm:max-w-md leading-relaxed">
-        This directory is empty. Navigate to a different location or open an archive to view its contents.
+        This directory is empty. Navigate to a different location or open an
+        archive to view its contents.
       </p>
       <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
         <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 text-blue-700 rounded-lg text-xs sm:text-sm">
@@ -132,6 +134,7 @@ const FileList = ({
                 onSelect={onSelect}
                 currentArchive={currentArchive}
                 onShowProperties={onShowProperties}
+                onCreateArchive={onCreateArchive}
               />
             ))}
           </div>

@@ -36,6 +36,8 @@ pub enum ArchiveType {
     Tbz2,
     // RAR archives
     Rar,
+    // 7z archives
+    SevenZ,
 }
 
 /// Detect archive type from filename, handling compound extensions like .tar.gz
@@ -66,6 +68,8 @@ pub fn detect_archive_type(file_name: &str) -> Option<ArchiveType> {
         Some(ArchiveType::Ipa)
     } else if lower.ends_with(".rar") {
         Some(ArchiveType::Rar)
+    } else if lower.ends_with(".7z") {
+        Some(ArchiveType::SevenZ)
     } else {
         None
     }
@@ -93,4 +97,10 @@ pub fn is_tar_based(archive_type: ArchiveType) -> bool {
 #[allow(dead_code)]
 pub fn is_rar_based(archive_type: ArchiveType) -> bool {
     matches!(archive_type, ArchiveType::Rar)
+}
+
+/// Check if the archive type is 7z-based
+#[allow(dead_code)]
+pub fn is_sevenz_based(archive_type: ArchiveType) -> bool {
+    matches!(archive_type, ArchiveType::SevenZ)
 }

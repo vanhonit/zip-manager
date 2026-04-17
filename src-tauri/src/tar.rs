@@ -1,5 +1,7 @@
 use bzip2::read::BzDecoder;
+use bzip2::write::BzEncoder;
 use flate2::read::GzDecoder;
+use flate2::write::GzEncoder;
 use open::that_detached;
 use rand::Rng;
 use serde_json;
@@ -9,10 +11,13 @@ use std::io::{self, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
-use tar::Archive;
+use tar::{Archive, Builder};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::data_type::{AppTempDir, ExtractionConfig, ExtractionProgress, FileInfo};
+use crate::data_type::{
+    AppTempDir, CompressionConfig, CompressionProgress, ExtractionConfig, ExtractionProgress,
+    FileInfo,
+};
 use crate::utils::detect_archive_type;
 
 /// Helper function to open a tar file with appropriate decompression
@@ -444,4 +449,277 @@ fn base64_encode(data: &[u8]) -> String {
     }
 
     result
+}
+
+/// Create uncompressed TAR archive from files
+pub fn create_tar_archive(app_handle: AppHandle, config: CompressionConfig) -> Result<(), String> {
+    use std::fs;
+
+    let files_to_compress = &config.files;
+    if files_to_compress.is_empty() {
+        return Err("No files specified for compression".to_string());
+    }
+
+    let total_files = files_to_compress.len();
+    let progress = CompressionProgress::new(total_files);
+
+    // Create output directory if it doesn't exist
+    let output_path = Path::new(&config.output_path);
+    if let Some(parent) = output_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create output directory: {}", e))?;
+    }
+
+    // Create TAR file
+    let tar_file = File::create(&config.output_path)
+        .map_err(|e| format!("Failed to create TAR file: {}", e))?;
+
+    let mut tar_builder = Builder::new(tar_file);
+
+    // Add each file to the archive
+    for (index, file_path) in files_to_compress.iter().enumerate() {
+        // Check for cancellation
+        if config.cancel.load(Ordering::Relaxed) {
+            return Err("Compression cancelled".to_string());
+        }
+
+        let path = Path::new(file_path);
+
+        if !path.exists() {
+            eprintln!("File not found: {}", file_path);
+            continue;
+        }
+
+        // Set current file for progress tracking
+        progress.set_current_file(
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string(),
+        );
+
+        if path.is_dir() {
+            // Add directory to archive
+            tar_builder
+                .append_dir(&path, path)
+                .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
+        } else {
+            // Add file to archive
+            let mut file = File::open(&path)
+                .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
+            tar_builder
+                .append_file(&path, &mut file)
+                .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
+        }
+
+        // Update progress
+        let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
+        progress.update(index + 1);
+
+        // Emit progress event
+        let progress_data = serde_json::json!({
+            "percentage": progress_value,
+            "files_processed": index + 1,
+            "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
+            "compression_ratio": 0.0
+        });
+        let _ = app_handle.emit("compress-progress", progress_data);
+    }
+
+    // Emit completion event
+    let _ = app_handle.emit("compress-complete", ());
+
+    Ok(())
+}
+
+/// Create TAR.GZ (gzipped TAR) archive from files
+#[allow(dead_code)]
+pub fn create_tar_gz_archive(
+    app_handle: AppHandle,
+    config: CompressionConfig,
+) -> Result<(), String> {
+    use std::fs;
+
+    let files_to_compress = &config.files;
+    if files_to_compress.is_empty() {
+        return Err("No files specified for compression".to_string());
+    }
+
+    let total_files = files_to_compress.len();
+    let progress = CompressionProgress::new(total_files);
+
+    // Create output directory if it doesn't exist
+    let output_path = Path::new(&config.output_path);
+    if let Some(parent) = output_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create output directory: {}", e))?;
+    }
+
+    // Create TAR.GZ file with compression
+    let tar_gz_file = File::create(&config.output_path)
+        .map_err(|e| format!("Failed to create TAR.GZ file: {}", e))?;
+
+    // Compression level from config (1-9, default 6)
+    let compression_level = if config.compression_level > 0 && config.compression_level <= 9 {
+        config.compression_level
+    } else {
+        6
+    };
+
+    let gz_encoder = GzEncoder::new(
+        tar_gz_file,
+        flate2::Compression::new(compression_level as u32),
+    );
+    let mut tar_builder = Builder::new(gz_encoder);
+
+    // Add each file to the archive
+    for (index, file_path) in files_to_compress.iter().enumerate() {
+        // Check for cancellation
+        if config.cancel.load(Ordering::Relaxed) {
+            return Err("Compression cancelled".to_string());
+        }
+
+        let path = Path::new(file_path);
+
+        if !path.exists() {
+            eprintln!("File not found: {}", file_path);
+            continue;
+        }
+
+        // Set current file for progress tracking
+        progress.set_current_file(
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string(),
+        );
+
+        if path.is_dir() {
+            // Add directory to archive
+            tar_builder
+                .append_dir(&path, path)
+                .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
+        } else {
+            // Add file to archive
+            let mut file = File::open(&path)
+                .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
+            tar_builder
+                .append_file(&path, &mut file)
+                .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
+        }
+
+        // Update progress
+        let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
+        progress.update(index + 1);
+
+        // Emit progress event
+        let progress_data = serde_json::json!({
+            "percentage": progress_value,
+            "files_processed": index + 1,
+            "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
+            "compression_ratio": 0.0
+        });
+        let _ = app_handle.emit("compress-progress", progress_data);
+    }
+
+    // Emit completion event
+    let _ = app_handle.emit("compress-complete", ());
+
+    Ok(())
+}
+
+/// Create TAR.BZ2 (bzip2-compressed TAR) archive from files
+#[allow(dead_code)]
+pub fn create_tar_bz2_archive(
+    app_handle: AppHandle,
+    config: CompressionConfig,
+) -> Result<(), String> {
+    use std::fs;
+
+    let files_to_compress = &config.files;
+    if files_to_compress.is_empty() {
+        return Err("No files specified for compression".to_string());
+    }
+
+    let total_files = files_to_compress.len();
+    let progress = CompressionProgress::new(total_files);
+
+    // Create output directory if it doesn't exist
+    let output_path = Path::new(&config.output_path);
+    if let Some(parent) = output_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create output directory: {}", e))?;
+    }
+
+    // Create TAR.BZ2 file with compression
+    let tar_bz2_file = File::create(&config.output_path)
+        .map_err(|e| format!("Failed to create TAR.BZ2 file: {}", e))?;
+
+    // Compression level from config (1-9, default 6)
+    let compression_level = if config.compression_level > 0 && config.compression_level <= 9 {
+        config.compression_level
+    } else {
+        6
+    };
+
+    let bz_encoder = BzEncoder::new(
+        tar_bz2_file,
+        bzip2::Compression::new(compression_level as u32),
+    );
+    let mut tar_builder = Builder::new(bz_encoder);
+
+    // Add each file to the archive
+    for (index, file_path) in files_to_compress.iter().enumerate() {
+        // Check for cancellation
+        if config.cancel.load(Ordering::Relaxed) {
+            return Err("Compression cancelled".to_string());
+        }
+
+        let path = Path::new(file_path);
+
+        if !path.exists() {
+            eprintln!("File not found: {}", file_path);
+            continue;
+        }
+
+        // Set current file for progress tracking
+        progress.set_current_file(
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string(),
+        );
+
+        if path.is_dir() {
+            // Add directory to archive
+            tar_builder
+                .append_dir(&path, path)
+                .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
+        } else {
+            // Add file to archive
+            let mut file = File::open(&path)
+                .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
+            tar_builder
+                .append_file(&path, &mut file)
+                .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
+        }
+
+        // Update progress
+        let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
+        progress.update(index + 1);
+
+        // Emit progress event
+        let progress_data = serde_json::json!({
+            "percentage": progress_value,
+            "files_processed": index + 1,
+            "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
+            "compression_ratio": 0.0
+        });
+        let _ = app_handle.emit("compress-progress", progress_data);
+    }
+
+    // Emit completion event
+    let _ = app_handle.emit("compress-complete", ());
+
+    Ok(())
 }

@@ -173,6 +173,7 @@ const FileItem = ({
   onOpenFile,
   currentArchive,
   onShowProperties,
+  onCreateArchive,
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -467,6 +468,18 @@ const FileItem = ({
             <i className="ri-file-info-line text-indigo-500"></i>
             <span className="font-medium">Properties</span>
           </button>
+          {onCreateArchive && (
+            <button
+              onClick={() => {
+                onCreateArchive(file);
+                setShowContextMenu(false);
+              }}
+              className="w-full px-4 py-3 text-left text-sm hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 flex items-center gap-3 transition-all duration-200"
+            >
+              <i className="ri-archive-add-line text-purple-500"></i>
+              <span className="font-medium">Create Archive</span>
+            </button>
+          )}
         </div>
       )}
     </>

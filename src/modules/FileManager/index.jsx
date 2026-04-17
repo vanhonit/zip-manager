@@ -9,6 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import ChecksumModal from "../Checksum/ChecksumModal";
 import PropertiesModal from "./PropertiesModal";
+import CreateArchiveModal from "../Archive/CreateArchiveModal";
 
 function isArchiveFile(fileName) {
   if (!fileName || typeof fileName !== "string") return false;
@@ -47,6 +48,8 @@ const FileManager = () => {
   const [checksumFilePath, setChecksumFilePath] = useState(null);
   // File to show properties for (null = hidden)
   const [propertiesFile, setPropertiesFile] = useState(null);
+  // Create archive modal visibility
+  const [showCreateArchiveModal, setShowCreateArchiveModal] = useState(false);
 
   // Filter files based on search query
   const filteredFiles = files.filter(file => {
@@ -235,6 +238,28 @@ const FileManager = () => {
     setChecksumFilePath(currentArchive);
   };
 
+  // ── Show create archive modal ──────────────────────────────────────────────
+  const openCreateArchiveModal = () => {
+    if (selectedFiles.length === 0) {
+      setError("Please select files to create an archive");
+      return;
+    }
+    setShowCreateArchiveModal(true);
+  };
+
+  // ── Handle successful archive creation ───────────────────────────────────
+  const handleArchiveCreated = () => {
+    // Refresh the current view
+    if (currentPath) {
+      loadDirectory(currentPath);
+    } else if (currentArchive) {
+      loadArchiveContents(currentArchive, archivePath);
+    }
+    // Clear selection
+    setSelectedFiles([]);
+    setShowCreateArchiveModal(false);
+  };
+
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -270,6 +295,14 @@ const FileManager = () => {
       }
       // Delete key to delete selected files (placeholder for future implementation)
       // if (e.key === "Delete" && selectedFiles.length > 0) {
+      //   // TODO: Implement delete functionality
+      //   console.log("Delete key pressed");
+      // }
+      // Ctrl/Cmd + N to create archive
+      if ((e.ctrlKey || e.metaKey) && e.key === "n" && selectedFiles.length > 0 && !currentArchive) {
+        e.preventDefault();
+        openCreateArchiveModal();
+      }
       //   // TODO: Implement delete functionality
       //   console.log("Delete key pressed");
       // }
@@ -379,6 +412,8 @@ const FileManager = () => {
                 <span>Open</span>
                 <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Click</kbd>
                 <span>Select</span>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">⌘N</kbd>
+                <span>Create Archive</span>
               </div>
             </div>
           </div>
@@ -393,6 +428,7 @@ const FileManager = () => {
               onView={viewSelectedFile}
               onOpen={openSelected}
               onChecksum={showChecksum}
+              onCreateArchive={openCreateArchiveModal}
               onSelectAll={selectAll}
               onDeselectAll={deselectAll}
               selectedCount={selectedFiles.length}
@@ -466,6 +502,7 @@ const FileManager = () => {
                 isLoading={isLoading}
                 currentArchive={currentArchive}
                 onShowProperties={showProperties}
+                onCreateArchive={openCreateArchiveModal}
               />
             </div>
           )}
@@ -503,6 +540,10 @@ const FileManager = () => {
                   <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Esc</kbd>
                   <span>deselect</span>
                 </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">⌘N</kbd>
+                  <span>create archive</span>
+                </div>
               </div>
             </div>
           )}
@@ -523,6 +564,16 @@ const FileManager = () => {
           file={propertiesFile}
           currentArchive={currentArchive}
           onClose={() => setPropertiesFile(null)}
+        />
+      )}
+
+      {/* Create Archive Modal */}
+      {showCreateArchiveModal && (
+        <CreateArchiveModal
+          selectedFiles={selectedFiles.map(f => f.path)}
+          currentPath={currentPath}
+          onClose={() => setShowCreateArchiveModal(false)}
+          onSuccess={handleArchiveCreated}
         />
       )}
     </div>

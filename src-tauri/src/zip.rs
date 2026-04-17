@@ -411,3 +411,185 @@ fn base64_encode(data: &[u8]) -> String {
 
     result
 }
+
+/// Create ZIP archive from files
+pub fn create_zip_archive(
+    app_handle: tauri::AppHandle,
+    config: crate::data_type::CompressionConfig,
+) -> Result<(), String> {
+    use crate::data_type::CompressionProgress;
+    use std::fs;
+    use std::io::Write;
+    use std::path::Path;
+
+    // Validate compression level (0-9)
+    let compression_level = if config.compression_level > 9 {
+        9
+    } else {
+        config.compression_level
+    };
+
+    // Get files to compress
+    let files_to_compress = &config.files;
+    if files_to_compress.is_empty() {
+        return Err("No files specified for compression".to_string());
+    }
+
+    // Calculate total files (including directories)
+    let total_files = files_to_compress.len();
+
+    // Create progress tracker
+    let progress = CompressionProgress::new(total_files);
+
+    // Create output directory if it doesn't exist
+    let output_path = Path::new(&config.output_path);
+    if let Some(parent) = output_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create output directory: {}", e))?;
+    }
+
+    // Create ZIP file
+    let zip_file = fs::File::create(&config.output_path)
+        .map_err(|e| format!("Failed to create ZIP file: {}", e))?;
+
+    // Create ZIP writer with compression
+    let mut zip_writer = zip::ZipWriter::new(zip_file);
+
+    // Configure compression method based on level
+    let compression_method = if compression_level == 0 {
+        zip::CompressionMethod::Stored
+    } else {
+        zip::CompressionMethod::Deflated
+    };
+
+    // Use basic file options with compression method
+    let options = zip::write::SimpleFileOptions::default()
+        .compression_method(compression_method)
+        .unix_permissions(0o755); // Default permissions
+
+    // Add each file to archive
+    for (index, file_path) in files_to_compress.iter().enumerate() {
+        // Check for cancellation
+        if config.cancel.load(std::sync::atomic::Ordering::Relaxed) {
+            return Err("Compression cancelled".to_string());
+        }
+
+        let path = Path::new(file_path);
+
+        if !path.exists() {
+            eprintln!("File not found: {}", file_path);
+            continue;
+        }
+
+        // Set current file for progress tracking
+        progress.set_current_file(
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string(),
+        );
+
+        if path.is_dir() {
+            // Add directory to archive
+            let dir_name = format!("{}/", path.to_string_lossy());
+            zip_writer
+                .add_directory(&dir_name, options.clone())
+                .map_err(|e| format!("Failed to add directory: {}", e))?;
+        } else {
+            // Add file to archive
+            let file_name = path.to_string_lossy().to_string();
+            zip_writer
+                .start_file(&file_name, options.clone())
+                .map_err(|e| format!("Failed to start file: {}", e))?;
+
+            // Read file contents and write to archive
+            let file_content = fs::read(path)
+                .map_err(|e| format!("Failed to read file {}: {}", file_path, e))?;
+
+            zip_writer
+                .write_all(&file_content)
+                .map_err(|e| format!("Failed to write file to archive: {}", e))?;
+        }
+
+        // Update progress
+        let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
+        progress.update(index + 1);
+
+        // Emit progress event
+        let progress_data = serde_json::json!({
+            "percentage": progress_value,
+            "files_processed": index + 1,
+            "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
+            "compression_ratio": 0.0 // Calculate if needed
+        });
+        let _ = app_handle.emit("compress-progress", progress_data);
+    }
+
+    // Add each file to the archive
+    for (index, file_path) in files_to_compress.iter().enumerate() {
+        // Check for cancellation
+        if config.cancel.load(std::sync::atomic::Ordering::Relaxed) {
+            return Err("Compression cancelled".to_string());
+        }
+
+        let path = Path::new(file_path);
+
+        if !path.exists() {
+            eprintln!("File not found: {}", file_path);
+            continue;
+        }
+
+        // Set current file for progress tracking
+        progress.set_current_file(
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string(),
+        );
+
+        if path.is_dir() {
+            // Add directory to archive
+            let dir_name = format!("{}/", path.to_string_lossy());
+            zip_writer
+                .add_directory(&dir_name, options)
+                .map_err(|e| format!("Failed to add directory: {}", e))?;
+        } else {
+            // Add file to archive
+            let file_name = path.to_string_lossy().to_string();
+            zip_writer
+                .start_file(&file_name, options)
+                .map_err(|e| format!("Failed to start file: {}", e))?;
+
+            // Read file contents and write to archive
+            let file_content = fs::read(path)
+                .map_err(|e| format!("Failed to read file {}: {}", file_path, e))?;
+
+            zip_writer
+                .write_all(&file_content)
+                .map_err(|e| format!("Failed to write file to archive: {}", e))?;
+
+            // Update progress
+            let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
+            progress.update(index + 1);
+
+            // Emit progress event
+            let progress_data = serde_json::json!({
+                "percentage": progress_value,
+                "files_processed": index + 1,
+                "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
+                "compression_ratio": 0.0 // Calculate if needed
+            });
+            let _ = app_handle.emit("compress-progress", progress_data);
+        }
+    }
+
+    // Finish the archive
+    zip_writer
+        .finish()
+        .map_err(|e| format!("Failed to finish archive: {}", e))?;
+
+    // Emit completion event
+    let _ = app_handle.emit("compress-complete", ());
+
+    Ok(())
+}

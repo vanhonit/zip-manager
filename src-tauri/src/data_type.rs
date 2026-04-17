@@ -54,3 +54,48 @@ impl ExtractionProgress {
 pub struct AppTempDir {
     pub temp_dir: TempDir,
 }
+
+// Compression configuration struct
+#[derive(Clone, serde::Serialize)]
+pub struct CompressionConfig {
+    pub files: Vec<String>,
+    pub output_path: String,
+    pub archive_format: ArchiveFormat,
+    pub compression_level: u8,
+    pub cancel: Arc<AtomicBool>,
+}
+
+// Archive format enum
+#[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
+pub enum ArchiveFormat {
+    Zip,
+    Tar,
+    Sevenz,
+}
+
+// Compression progress state
+#[derive(Clone)]
+pub struct CompressionProgress {
+    pub current: Arc<Mutex<f64>>,
+    pub total_files: usize,
+    pub current_file: Arc<Mutex<Option<String>>>,
+}
+
+impl CompressionProgress {
+    pub fn new(total_files: usize) -> Self {
+        CompressionProgress {
+            current: Arc::new(Mutex::new(0.0)),
+            total_files,
+            current_file: Arc::new(Mutex::new(None)),
+        }
+    }
+
+    pub fn update(&self, files_processed: usize) {
+        let mut current = self.current.lock().unwrap();
+        *current = ((files_processed as f64 / self.total_files as f64) * 100.0).min(100.0);
+    }
+
+    pub fn set_current_file(&self, file: String) {
+        *self.current_file.lock().unwrap() = Some(file);
+    }
+}

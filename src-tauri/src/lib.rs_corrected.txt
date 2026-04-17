@@ -1,0 +1,21 @@
+fn get_image_preview(archive_path: String, file_path: String) -> Result<String, String> {
+    // Use the archive type detector to identify the archive format
+    let archive_type = match detect_archive_type(&archive_path) {
+        Some(archive_type) => archive_type,
+        None => {
+            return Err("Unsupported archive type. Supported formats: .zip, .jar, .apk, .xapk, .ipa, .tar, .tar.gz, .tgz, .tar.bz2, .tbz2, .7z".to_string())
+        }
+    };
+
+    if is_zip_based(archive_type) {
+        get_image_preview_from_zip(archive_path, file_path)
+    } else if is_tar_based(archive_type) {
+        get_image_preview_from_tar(archive_path, file_path)
+    } else if is_rar_based(archive_type) {
+        get_image_preview_from_rar(archive_path, file_path)
+    } else if is_sevenz_based(archive_type) {
+        return Err("7z image preview not yet supported".to_string())
+    }
+
+    Err("Unsupported archive type. Supported formats: .zip, .jar, .apk, .xapk, .ipa, .tar, .tar.gz, .tgz, .tar.bz2, .tbz2, .rar, .7z".to_string())
+}

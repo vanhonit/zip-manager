@@ -27,8 +27,8 @@ const Breadcrumb = ({
   const isInsideArchive = Boolean(currentArchive);
 
   return (
-    <div className="px-3 sm:px-4 md:px-6 py-2 sm:py-4 bg-gradient-to-r from-white to-blue-50 border-b border-blue-100">
-      <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-50">
+    <div className="px-4 py-3 bg-white border-b border-gray-200">
+      <nav className="flex items-center gap-1.5 overflow-x-auto">
         {/* ── Filesystem segments ─────────────────────────────────────────── */}
         {fsBreadcrumbParts.map((segment, index) => {
           const isLast =
@@ -40,20 +40,18 @@ const Breadcrumb = ({
             <React.Fragment key={`fs-${index}`}>
               {index > 0 && <Separator />}
               {isLast ? (
-                <span className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 font-bold text-gray-900 shadow-md">
-                  {isRoot && <i className="ri-home-line text-blue-600 text-sm sm:text-base"></i>}
-                  <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm">{displayLabel}</span>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-900 font-medium text-sm">
+                  {isRoot && <i className="ri-home-line text-gray-500"></i>}
+                  <span className="truncate max-w-[150px] sm:max-w-[200px]">{displayLabel}</span>
                 </span>
               ) : (
                 <button
                   onClick={() => onNavigateFsSegment?.(index)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl text-blue-600 hover:text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 hover:shadow-md hover:-translate-y-px active:translate-y-0 font-semibold group"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors text-sm"
                   title={displayLabel}
                 >
-                  {isRoot && (
-                    <i className="ri-home-line group-hover:scale-110 transition-transform duration-200 text-sm sm:text-base"></i>
-                  )}
-                  <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm group-hover:underline">
+                  {isRoot && <i className="ri-home-line text-gray-500"></i>}
+                  <span className="truncate max-w-[150px] sm:max-w-[200px]">
                     {displayLabel}
                   </span>
                 </button>
@@ -69,22 +67,22 @@ const Breadcrumb = ({
             {archiveBreadcrumbParts.length === 0 ? (
               /* We are at the archive root — not clickable (already here) */
               <span
-                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-indigo-200 via-purple-200 to-indigo-200 border-2 border-indigo-400 font-bold text-gray-900 shadow-lg"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-900 font-medium text-sm"
                 title={currentArchive}
               >
-                <i className="ri-archive-2-line text-indigo-600 text-sm sm:text-base"></i>
-                <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm">
+                <i className="ri-archive-2-line text-indigo-600"></i>
+                <span className="truncate max-w-[150px] sm:max-w-[200px]">
                   {archiveFileName}
                 </span>
               </span>
             ) : (
               <button
                 onClick={() => onNavigateArchiveRoot?.()}
-                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl bg-indigo-100 border-2 border-indigo-300 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-100 hover:to-purple-100 hover:border-indigo-400 transition-all duration-300 hover:shadow-md hover:-translate-y-px active:translate-y-0 font-semibold group"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 transition-colors text-sm"
                 title={currentArchive}
               >
-                <i className="ri-archive-2-line text-indigo-600 group-hover:scale-110 transition-transform duration-200 text-sm sm:text-base"></i>
-                <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm group-hover:underline">
+                <i className="ri-archive-2-line"></i>
+                <span className="truncate max-w-[150px] sm:max-w-[200px]">
                   {archiveFileName}
                 </span>
               </button>
@@ -102,20 +100,20 @@ const Breadcrumb = ({
                 <Separator />
                 {isLast ? (
                   <span
-                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 font-bold text-gray-900 shadow-md"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-900 font-medium text-sm"
                     title={segment}
                   >
-                    <i className="ri-folder-line text-blue-600 text-sm sm:text-base"></i>
-                    <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm">{segment}</span>
+                    <i className="ri-folder-line text-blue-600"></i>
+                    <span className="truncate max-w-[150px] sm:max-w-[200px]">{segment}</span>
                   </span>
                 ) : (
                   <button
                     onClick={() => onNavigateArchiveSegment?.(index)}
-                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2.5 rounded-xl text-blue-600 hover:text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 hover:shadow-md hover:-translate-y-px active:translate-y-0 font-semibold group"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-blue-600 hover:text-blue-900 hover:bg-blue-50 transition-colors text-sm"
                     title={segment}
                   >
-                    <i className="ri-folder-line text-blue-500 group-hover:scale-110 transition-transform duration-200 text-sm sm:text-base"></i>
-                    <span className="truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px] text-xs sm:text-sm group-hover:underline">
+                    <i className="ri-folder-line"></i>
+                    <span className="truncate max-w-[150px] sm:max-w-[200px]">
                       {segment}
                     </span>
                   </button>
@@ -131,7 +129,7 @@ const Breadcrumb = ({
 /* ── Small helpers ─────────────────────────────────────────────────────────── */
 
 const Separator = () => (
-  <i className="ri-arrow-right-s-line text-blue-300 flex-shrink-0 text-lg hover:text-blue-400 transition-colors"></i>
+  <i className="ri-arrow-right-s-line text-gray-400 flex-shrink-0"></i>
 );
 
 export default Breadcrumb;
