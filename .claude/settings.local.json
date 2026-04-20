@@ -6,7 +6,8 @@
       "Bash(npm run *)",
       "Bash(cargo clean *)",
       "Bash(cargo build *)",
-      "Bash(cargo tree *)"
+      "Bash(cargo tree *)",
+      "Bash(cargo doc *)"
     ]
   }
 }

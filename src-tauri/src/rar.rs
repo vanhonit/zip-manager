@@ -144,9 +144,21 @@ pub fn unarchive_rar_file(app_handle: AppHandle, config: ExtractionConfig) -> Re
         .ok_or("Invalid source path")?
         .to_string();
 
-    let archive = Archive::new(&source_str)
-        .open_for_listing()
-        .map_err(|e| format!("Failed to open RAR archive: {}", e))?;
+    let archive = match &config.password {
+        Some(password) => unrar::Archive::with_password(&source_str, password)
+            .open_for_listing()
+            .map_err(|e| {
+                let error_msg = e.to_string();
+                if error_msg.contains("password") {
+                    format!("Incorrect password for RAR archive: {}", error_msg)
+                } else {
+                    format!("Failed to open RAR archive: {}", error_msg)
+                }
+            })?,
+        None => Archive::new(&source_str)
+            .open_for_listing()
+            .map_err(|e| format!("Failed to open RAR archive: {}", e))?,
+    };
 
     let mut total_files = 0;
 
@@ -170,9 +182,21 @@ pub fn unarchive_rar_file(app_handle: AppHandle, config: ExtractionConfig) -> Re
     let progress = ExtractionProgress::new(total_files);
 
     // Now extract files
-    let mut archive = Archive::new(&source_str)
-        .open_for_processing()
-        .map_err(|e| format!("Failed to open RAR archive for processing: {}", e))?;
+    let mut archive = match &config.password {
+        Some(password) => unrar::Archive::with_password(&source_str, password)
+            .open_for_processing()
+            .map_err(|e| {
+                let error_msg = e.to_string();
+                if error_msg.contains("password") {
+                    format!("Incorrect password for RAR archive: {}", error_msg)
+                } else {
+                    format!("Failed to open RAR archive for processing: {}", error_msg)
+                }
+            })?,
+        None => Archive::new(&source_str)
+            .open_for_processing()
+            .map_err(|e| format!("Failed to open RAR archive for processing: {}", e))?,
+    };
 
     let mut count = 0;
 

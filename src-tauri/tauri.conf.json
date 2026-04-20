@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "rusty-compress",
+  "productName": "Rusty Compress",
   "version": "0.1.0",
   "identifier": "com.rusty-compress.app",
   "build": {
@@ -21,7 +21,8 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": []
     }
   },
   "plugins": {
@@ -31,6 +32,7 @@
         {
           "name": "source",
           "index": 1,
+          "description": "Source file to read",
           "takesValue": true
         }
       ]

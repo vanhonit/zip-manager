@@ -5,11 +5,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import Breadcrumb from "./Breadcumb";
 import { homeDir } from "@tauri-apps/api/path";
-import { listen } from "@tauri-apps/api/event";
+import { listen, emit } from "@tauri-apps/api/event";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import ChecksumModal from "../Checksum/ChecksumModal";
 import PropertiesModal from "./PropertiesModal";
 import CreateArchiveModal from "../Archive/CreateArchiveModal";
+import PasswordModal from "../Extract/PasswordModal";
 
 function isArchiveFile(fileName) {
   if (!fileName || typeof fileName !== "string") return false;
@@ -50,9 +51,13 @@ const FileManager = () => {
   const [propertiesFile, setPropertiesFile] = useState(null);
   // Create archive modal visibility
   const [showCreateArchiveModal, setShowCreateArchiveModal] = useState(false);
+  // Password modal state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordError, setPasswordError] = useState(null);
+  const [currentExtraction, setCurrentExtraction] = useState(null);
 
   // Filter files based on search query
-  const filteredFiles = files.filter(file => {
+  const filteredFiles = files.filter((file) => {
     if (!searchQuery || searchQuery.trim() === "") return true;
     const query = searchQuery.toLowerCase().trim();
     return file.name.toLowerCase().includes(query);
@@ -86,6 +91,7 @@ const FileManager = () => {
    * @param {string} internalPath – path inside the archive, e.g. "" | "folder/" | "a/b/"
    */
   const loadArchiveContents = async (archiveFile, internalPath = "") => {
+    console.log("loadArchiveContents called with:", archiveFile, internalPath);
     setIsLoading(true);
     setError(null);
     try {
@@ -93,6 +99,7 @@ const FileManager = () => {
         sourcePath: archiveFile,
         filePath: internalPath || null,
       });
+      console.log("Archive contents loaded:", result);
       setFiles(result);
       setCurrentArchive(archiveFile);
       setArchivePath(internalPath || "");
@@ -198,20 +205,91 @@ const FileManager = () => {
       return;
     }
 
+    // Store extraction details for password handling
+    const extraction = {
+      archivePath: currentArchive,
+      selectedFiles: selectedFiles.map((f) => f.path),
+      outputPath,
+    };
+    setCurrentExtraction(extraction);
+
+    // Try extraction without password first
     setIsLoading(true);
     setError(null);
+    setPasswordError(null);
+
     try {
       await invoke("extract_files", {
         archivePath: currentArchive,
         selectedFiles: selectedFiles.map((f) => f.path),
         outputPath,
+        password: null, // Try without password first
       });
     } catch (err) {
       console.error("extract_files error:", err);
-      setError(`Failed to extract files: ${err.message || err}`);
+      const errorMsg = err.message || err;
+
+      // Check if error is password-related
+      if (
+        errorMsg.toLowerCase().includes("password") ||
+        errorMsg.toLowerCase().includes("encrypted") ||
+        errorMsg.toLowerCase().includes("protected")
+      ) {
+        // Show password modal
+        setShowPasswordModal(true);
+        setPasswordError(
+          "This archive is password protected. Please enter the correct password.",
+        );
+      } else {
+        setError(`Failed to extract files: ${errorMsg}`);
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle password submission
+  const handlePasswordSubmit = async (password) => {
+    if (!currentExtraction) return;
+
+    setShowPasswordModal(true); // Keep modal open
+    setPasswordError(null);
+
+    try {
+      await invoke("extract_files", {
+        archivePath: currentExtraction.archivePath,
+        selectedFiles: currentExtraction.selectedFiles,
+        outputPath: currentExtraction.outputPath,
+        password: password, // Try with provided password
+      });
+
+      // If successful, close password modal
+      setShowPasswordModal(false);
+      setCurrentExtraction(null);
+    } catch (err) {
+      console.error("extract_files with password error:", err);
+      const errorMsg = err.message || err;
+
+      if (
+        errorMsg.toLowerCase().includes("password") ||
+        errorMsg.toLowerCase().includes("incorrect")
+      ) {
+        // Password was wrong, show error in modal
+        setPasswordError("Incorrect password. Please try again.");
+      } else {
+        // Other error
+        setShowPasswordModal(false);
+        setError(`Failed to extract files: ${errorMsg}`);
+        setCurrentExtraction(null);
+      }
+    }
+  };
+
+  // Handle password modal close
+  const handlePasswordModalClose = () => {
+    setShowPasswordModal(false);
+    setPasswordError(null);
+    setCurrentExtraction(null);
   };
 
   // ── View selected file in archive ──────────────────────────────────────────
@@ -273,7 +351,7 @@ const FileManager = () => {
         deselectAll();
       }
       // Backspace to go up in navigation
-      else if (e.key === "Backspace" && !e.target.matches('input, textarea')) {
+      else if (e.key === "Backspace" && !e.target.matches("input, textarea")) {
         e.preventDefault();
         if (currentArchive && archivePath) {
           // Go up in archive navigation
@@ -299,7 +377,12 @@ const FileManager = () => {
       //   console.log("Delete key pressed");
       // }
       // Ctrl/Cmd + N to create archive
-      if ((e.ctrlKey || e.metaKey) && e.key === "n" && selectedFiles.length > 0 && !currentArchive) {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.key === "n" &&
+        selectedFiles.length > 0 &&
+        !currentArchive
+      ) {
         e.preventDefault();
         openCreateArchiveModal();
       }
@@ -316,6 +399,7 @@ const FileManager = () => {
   useEffect(() => {
     getMatches().then((matches) => {
       const source = matches.args?.source?.value;
+      console.log("Source ", source);
       if (source) {
         if (isArchiveFile(source)) {
           loadArchiveContents(source, "");
@@ -323,24 +407,76 @@ const FileManager = () => {
           loadDirectory(source);
         }
       } else {
-        homeDir().then((dir) => loadDirectory(dir));
+        invoke("take_files").then((files) => {
+          console.log("take_files result", files);
+          if (files && files.length > 0) {
+            if (isArchiveFile(files[0])) {
+              loadArchiveContents(files[0], "");
+            } else {
+              loadDirectory(files[0]);
+            }
+          } else {
+            homeDir().then((dir) => loadDirectory(dir));
+          }
+        });
       }
     });
+    emit("frontend-ready");
   }, []);
 
   // ── Handle file-open events (e.g. double-clicking an archive in Finder) ────
   useEffect(() => {
+    console.log("🎯 Setting up file-open event listener...");
+
     const unlisten = listen("file-open", (event) => {
-      const path = event.payload;
+      console.log("=== 📂 FILE-OPEN EVENT RECEIVED ===");
+      console.log("Full event object:", event);
+      console.log("Event type:", typeof event);
+      console.log("Event payload:", event.payload);
+      console.log("Payload type:", typeof event.payload);
+
+      // Try to extract path from different possible formats
+      let path = null;
+      if (typeof event === "string") {
+        path = event;
+      } else if (event && event.payload) {
+        path = event.payload;
+      } else if (event && event.detail) {
+        path = event.detail;
+      } else if (typeof event === "object") {
+        // Try to find path in event object
+        path = event.path || event.detail || event.payload;
+      }
+
+      console.log("Extracted path:", path);
+      console.log("Path type:", typeof path);
+      console.log("Path length:", path?.length);
+
       if (typeof path === "string" && path.length > 0) {
+        console.log("✅ Valid path received:", path);
+        console.log("Is archive file:", isArchiveFile(path));
         if (isArchiveFile(path)) {
+          console.log("📦 Loading archive contents:", path);
+          alert(`📦 Opening archive: ${path}`);
           loadArchiveContents(path, "");
         } else {
+          console.log("📁 Loading directory:", path);
+          alert(`📁 Loading directory: ${path}`);
           loadDirectory(path);
         }
+      } else {
+        console.log("❌ Invalid path received");
+        console.log("Path:", path);
+        console.log("Type:", typeof path);
+        console.log("Length:", path?.length);
+        alert(`❌ Invalid path received: ${path} (type: ${typeof path})`);
       }
     });
+
+    console.log("✅ File-open listener set up successfully");
+
     return () => {
+      console.log("Cleaning up file-open listener");
       unlisten.then((fn) => fn());
     };
   }, []);
@@ -401,18 +537,30 @@ const FileManager = () => {
                   <i className="ri-archive-2-line text-xl sm:text-2xl text-white"></i>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-white">Rusty Compress</h1>
-                  <p className="text-xs sm:text-sm text-blue-100">Archive Manager</p>
+                  <h1 className="text-lg sm:text-xl font-bold text-white">
+                    Rusty Compress
+                  </h1>
+                  <p className="text-xs sm:text-sm text-blue-100">
+                    Archive Manager
+                  </p>
                 </div>
               </div>
               <div className="hidden md:flex items-center gap-2 text-white/80 text-xs sm:text-sm">
-                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Esc</kbd>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">
+                  Esc
+                </kbd>
                 <span>Deselect</span>
-                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Enter</kbd>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">
+                  Enter
+                </kbd>
                 <span>Open</span>
-                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">Click</kbd>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">
+                  Click
+                </kbd>
                 <span>Select</span>
-                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">⌘N</kbd>
+                <kbd className="px-2 py-1 bg-white/20 rounded text-xs font-mono backdrop-blur-sm">
+                  ⌘N
+                </kbd>
                 <span>Create Archive</span>
               </div>
             </div>
@@ -463,7 +611,9 @@ const FileManager = () => {
                 <h3 className="text-xs sm:text-sm font-semibold text-red-800 mb-1">
                   Error
                 </h3>
-                <p className="text-xs sm:text-sm text-red-700 break-words">{error}</p>
+                <p className="text-xs sm:text-sm text-red-700 break-words">
+                  {error}
+                </p>
               </div>
               <button
                 onClick={() => setError(null)}
@@ -485,8 +635,12 @@ const FileManager = () => {
                     <i className="ri-refresh-line text-xl sm:text-2xl text-white animate-spin"></i>
                   </div>
                 </div>
-                <p className="text-gray-600 font-medium text-base sm:text-lg">Loading files...</p>
-                <p className="text-gray-400 text-xs sm:text-sm mt-1">Please wait a moment</p>
+                <p className="text-gray-600 font-medium text-base sm:text-lg">
+                  Loading files...
+                </p>
+                <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                  Please wait a moment
+                </p>
               </div>
             </div>
           )}
@@ -514,7 +668,10 @@ const FileManager = () => {
                 <div className="flex items-center gap-1 sm:gap-2">
                   <i className="ri-file-list-3-line text-gray-500 text-sm sm:text-base"></i>
                   <span className="text-gray-700 font-medium text-xs sm:text-sm">
-                    {searchQuery ? `${filteredFiles.length} of ${files.length}` : `${files.length}`} items
+                    {searchQuery
+                      ? `${filteredFiles.length} of ${files.length}`
+                      : `${files.length}`}{" "}
+                    items
                   </span>
                 </div>
                 {selectedFiles.length > 0 && (
@@ -522,7 +679,9 @@ const FileManager = () => {
                     <span className="text-gray-300">|</span>
                     <div className="flex items-center gap-1 sm:gap-2">
                       <i className="ri-checkbox-circle-line text-blue-500 text-sm sm:text-base"></i>
-                      <span className="text-blue-700 font-medium text-xs sm:text-sm">{selectedFiles.length} selected</span>
+                      <span className="text-blue-700 font-medium text-xs sm:text-sm">
+                        {selectedFiles.length} selected
+                      </span>
                     </div>
                   </div>
                 )}
@@ -533,15 +692,21 @@ const FileManager = () => {
                   <span>Click to select</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Enter</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">
+                    Enter
+                  </kbd>
                   <span>to open</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Esc</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">
+                    Esc
+                  </kbd>
                   <span>deselect</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">⌘N</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">
+                    ⌘N
+                  </kbd>
                   <span>create archive</span>
                 </div>
               </div>
@@ -570,12 +735,21 @@ const FileManager = () => {
       {/* Create Archive Modal */}
       {showCreateArchiveModal && (
         <CreateArchiveModal
-          selectedFiles={selectedFiles.map(f => f.path)}
+          selectedFiles={selectedFiles.map((f) => f.path)}
           currentPath={currentPath}
           onClose={() => setShowCreateArchiveModal(false)}
           onSuccess={handleArchiveCreated}
         />
       )}
+
+      {/* Password Modal */}
+      <PasswordModal
+        isOpen={showPasswordModal}
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        error={passwordError}
+        isLoading={false}
+      />
     </div>
   );
 };

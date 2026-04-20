@@ -64,8 +64,20 @@ function ProgressWindow({ name }) {
       {/* Error State */}
       {error && (
         <div className="shrink-0 mb-3 sm:mb-4 p-2 sm:p-3 bg-red-500 bg-opacity-10 border-2 border-red-500 border-opacity-30 rounded-xl animate-pulse">
-          <p className="text-red-300 text-xs sm:text-sm font-bold mb-1">Error</p>
-          <p className="text-red-200 text-xs sm:text-sm">{error}</p>
+          <div className="flex items-start gap-2">
+            <div className="w-5 h-5 bg-red-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i className="ri-error-warning-line text-sm text-white"></i>
+            </div>
+            <div className="flex-1">
+              <p className="text-red-300 text-xs sm:text-sm font-bold mb-1">Extraction Failed</p>
+              <p className="text-red-200 text-xs sm:text-sm">{error}</p>
+              {error.toLowerCase().includes("password") && (
+                <p className="text-red-300 text-xs sm:text-sm mt-2">
+                  Please try again with the correct password.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

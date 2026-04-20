@@ -499,16 +499,28 @@ pub fn create_tar_archive(app_handle: AppHandle, config: CompressionConfig) -> R
         );
 
         if path.is_dir() {
-            // Add directory to archive
+            // Add directory to archive with just the directory name
+            let dir_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("directory")
+                .to_string();
+            let dir_path = PathBuf::from(&dir_name);
             tar_builder
-                .append_dir(&path, path)
+                .append_dir(&dir_path, path)
                 .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
         } else {
-            // Add file to archive
+            // Add file to archive with just the filename
+            let file_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file")
+                .to_string();
+            let file_path_in_archive = PathBuf::from(&file_name);
             let mut file = File::open(&path)
                 .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
             tar_builder
-                .append_file(&path, &mut file)
+                .append_file(&file_path_in_archive, &mut file)
                 .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
         }
 
@@ -595,16 +607,28 @@ pub fn create_tar_gz_archive(
         );
 
         if path.is_dir() {
-            // Add directory to archive
+            // Add directory to archive with just the directory name
+            let dir_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("directory")
+                .to_string();
+            let dir_path = PathBuf::from(&dir_name);
             tar_builder
-                .append_dir(&path, path)
+                .append_dir(&dir_path, path)
                 .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
         } else {
-            // Add file to archive
+            // Add file to archive with just the filename
+            let file_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file")
+                .to_string();
+            let file_path_in_archive = PathBuf::from(&file_name);
             let mut file = File::open(&path)
                 .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
             tar_builder
-                .append_file(&path, &mut file)
+                .append_file(&file_path_in_archive, &mut file)
                 .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
         }
 
@@ -691,16 +715,28 @@ pub fn create_tar_bz2_archive(
         );
 
         if path.is_dir() {
-            // Add directory to archive
+            // Add directory to archive with just the directory name
+            let dir_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("directory")
+                .to_string();
+            let dir_path = PathBuf::from(&dir_name);
             tar_builder
-                .append_dir(&path, path)
+                .append_dir(&dir_path, path)
                 .map_err(|e| format!("Failed to add directory {}: {}", file_path, e))?;
         } else {
-            // Add file to archive
+            // Add file to archive with just the filename
+            let file_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file")
+                .to_string();
+            let file_path_in_archive = PathBuf::from(&file_name);
             let mut file = File::open(&path)
                 .map_err(|e| format!("Failed to open file {}: {}", file_path, e))?;
             tar_builder
-                .append_file(&path, &mut file)
+                .append_file(&file_path_in_archive, &mut file)
                 .map_err(|e| format!("Failed to add file {}: {}", file_path, e))?;
         }
 

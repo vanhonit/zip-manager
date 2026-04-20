@@ -24,6 +24,7 @@ pub struct ExtractionConfig {
     pub destination: String,
     pub selected_files: Option<Vec<String>>,
     pub cancel: Arc<AtomicBool>,
+    pub password: Option<String>,
 }
 
 // Extraction progress state

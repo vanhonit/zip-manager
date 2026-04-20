@@ -142,8 +142,9 @@ pub fn unarchive_zip_file(
     config: ExtractionConfig,
 ) -> Result<(), String> {
     // Open the ZIP file
-    let mut archive = ZipArchive::new(File::open(&config.source).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let file = File::open(&config.source).map_err(|e| e.to_string())?;
+    let reader = BufReader::new(file);
+    let mut archive = ZipArchive::new(reader).map_err(|e| e.to_string())?;
 
     let selected_files = config.selected_files.unwrap_or_default();
     // Total number of files in the archive
@@ -167,10 +168,16 @@ pub fn unarchive_zip_file(
             return Err("Extraction cancelled".to_string());
         }
 
-        let mut file = match archive.by_index(i) {
+        let password_bytes = config.password.as_ref().map(|p| p.as_bytes());
+        let mut file = match archive.by_index_decrypt(i, password_bytes.as_deref().unwrap_or(&[])) {
             Ok(file) => file,
             Err(e) => {
-                // Log and continue with next file
+                // Check if this is a password-related error
+                let error_msg = e.to_string();
+                if error_msg.contains("password") || error_msg.contains("encrypted") {
+                    return Err(format!("Password required or incorrect for this archive: {}", error_msg));
+                }
+                // Log and continue with next file for other errors
                 eprintln!("Failed to extract file {}: {}", i, e);
                 continue;
             }
@@ -490,14 +497,23 @@ pub fn create_zip_archive(
         );
 
         if path.is_dir() {
-            // Add directory to archive
-            let dir_name = format!("{}/", path.to_string_lossy());
+            // Add directory to archive with just the directory name
+            let dir_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("directory")
+                .to_string();
+            let dir_entry = format!("{}/", dir_name);
             zip_writer
-                .add_directory(&dir_name, options.clone())
+                .add_directory(&dir_entry, options.clone())
                 .map_err(|e| format!("Failed to add directory: {}", e))?;
         } else {
-            // Add file to archive
-            let file_name = path.to_string_lossy().to_string();
+            // Add file to archive with just the filename
+            let file_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file")
+                .to_string();
             zip_writer
                 .start_file(&file_name, options.clone())
                 .map_err(|e| format!("Failed to start file: {}", e))?;
@@ -523,64 +539,6 @@ pub fn create_zip_archive(
             "compression_ratio": 0.0 // Calculate if needed
         });
         let _ = app_handle.emit("compress-progress", progress_data);
-    }
-
-    // Add each file to the archive
-    for (index, file_path) in files_to_compress.iter().enumerate() {
-        // Check for cancellation
-        if config.cancel.load(std::sync::atomic::Ordering::Relaxed) {
-            return Err("Compression cancelled".to_string());
-        }
-
-        let path = Path::new(file_path);
-
-        if !path.exists() {
-            eprintln!("File not found: {}", file_path);
-            continue;
-        }
-
-        // Set current file for progress tracking
-        progress.set_current_file(
-            path.file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown")
-                .to_string(),
-        );
-
-        if path.is_dir() {
-            // Add directory to archive
-            let dir_name = format!("{}/", path.to_string_lossy());
-            zip_writer
-                .add_directory(&dir_name, options)
-                .map_err(|e| format!("Failed to add directory: {}", e))?;
-        } else {
-            // Add file to archive
-            let file_name = path.to_string_lossy().to_string();
-            zip_writer
-                .start_file(&file_name, options)
-                .map_err(|e| format!("Failed to start file: {}", e))?;
-
-            // Read file contents and write to archive
-            let file_content = fs::read(path)
-                .map_err(|e| format!("Failed to read file {}: {}", file_path, e))?;
-
-            zip_writer
-                .write_all(&file_content)
-                .map_err(|e| format!("Failed to write file to archive: {}", e))?;
-
-            // Update progress
-            let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
-            progress.update(index + 1);
-
-            // Emit progress event
-            let progress_data = serde_json::json!({
-                "percentage": progress_value,
-                "files_processed": index + 1,
-                "current_file": progress.current_file.lock().unwrap().clone().unwrap_or_default(),
-                "compression_ratio": 0.0 // Calculate if needed
-            });
-            let _ = app_handle.emit("compress-progress", progress_data);
-        }
     }
 
     // Finish the archive

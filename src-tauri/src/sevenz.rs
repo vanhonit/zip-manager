@@ -23,6 +23,7 @@ pub fn unarchive_sevenz_file(
     _config: ExtractionConfig,
 ) -> Result<(), String> {
     // TODO: Implement 7z archive extraction with proper library API
+    // The password is available via config.password: Option<String>
     // For now, return success
     Ok(())
 }
@@ -55,7 +56,6 @@ pub fn create_sevenz_archive(
 ) -> Result<(), String> {
     use serde_json;
     use std::fs;
-    use std::path::Path;
     use std::process::Command;
     use std::sync::atomic::Ordering;
 
@@ -87,21 +87,53 @@ pub fn create_sevenz_archive(
 
     cmd.arg(format!("-mx{}", compression_level));
 
-    // Add each file to the command
+    // Find common parent directory for relative paths
+    let mut parent_dir_opt = None;
+    for file_path in files_to_compress {
+        let path = std::path::Path::new(file_path);
+        if let Some(parent) = path.parent() {
+            match &parent_dir_opt {
+                None => parent_dir_opt = Some(parent.to_path_buf()),
+                Some(current_parent) => {
+                    // Find common ancestor
+                    parent_dir_opt = Some(find_common_ancestor(current_parent, parent));
+                }
+            }
+        }
+    }
+
+    // Use common parent directory if found
+    if let Some(parent_dir) = &parent_dir_opt {
+        cmd.current_dir(parent_dir);
+    }
+
+    // Add each file to the command with relative paths
     for (index, file_path) in files_to_compress.iter().enumerate() {
         // Check for cancellation
         if config.cancel.load(Ordering::Relaxed) {
             return Err("Compression cancelled".to_string());
         }
 
-        cmd.arg(file_path);
+        let path = std::path::Path::new(file_path);
+
+        // Use just the filename if we have a parent directory, otherwise use full path
+        let archive_path = if let Some(_parent_dir) = &parent_dir_opt {
+            path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file")
+                .to_string()
+        } else {
+            file_path.clone()
+        };
+
+        cmd.arg(&archive_path);
 
         // Emit progress event
         let progress_value = ((index + 1) as f64 / total_files as f64) * 100.0;
         let progress_data = serde_json::json!({
             "percentage": progress_value,
             "files_processed": index + 1,
-            "current_file": std::path::Path::new(file_path)
+            "current_file": path
                 .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("unknown")
@@ -128,4 +160,18 @@ pub fn create_sevenz_archive(
     let _ = app_handle.emit("compress-complete", ());
 
     Ok(())
+}
+
+/// Find common ancestor of two paths
+fn find_common_ancestor(path1: &std::path::Path, path2: &std::path::Path) -> std::path::PathBuf {
+    let mut common = std::path::PathBuf::new();
+
+    for component in path1.ancestors() {
+        if path2.starts_with(component) {
+            common = component.to_path_buf();
+            break;
+        }
+    }
+
+    common
 }
