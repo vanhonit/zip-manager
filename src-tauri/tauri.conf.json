@@ -30,12 +30,38 @@
       "description": "Rusty compress CLI",
       "args": [
         {
-          "name": "source",
+          "name": "file",
           "index": 1,
-          "description": "Source file to read",
-          "takesValue": true
+          "description": "Archive file path to open",
+          "takesValue": true,
+          "required": false
         }
-      ]
+      ],
+      "subcommands": {
+        "extract": {
+          "description": "Extract archive files",
+          "args": [
+            {
+              "name": "source",
+              "index": 1,
+              "description": "Archive file path to extract",
+              "takesValue": true,
+              "required": true
+            },
+            {
+              "name": "here",
+              "short": "h",
+              "description": "Extract to the archive's parent directory (default when no option is given)"
+            },
+            {
+              "name": "to",
+              "short": "t",
+              "description": "Extract to a specific destination directory",
+              "takesValue": true
+            }
+          ]
+        }
+      }
     }
   },
   "bundle": {

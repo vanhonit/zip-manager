@@ -6,7 +6,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import Breadcrumb from "./Breadcumb";
 import { homeDir } from "@tauri-apps/api/path";
 import { listen, emit } from "@tauri-apps/api/event";
-import { getMatches } from "@tauri-apps/plugin-cli";
+
 import ChecksumModal from "../Checksum/ChecksumModal";
 import PropertiesModal from "./PropertiesModal";
 import CreateArchiveModal from "../Archive/CreateArchiveModal";
@@ -34,6 +34,8 @@ function isArchiveFile(fileName) {
 }
 
 const FileManager = () => {
+  // Prevents React StrictMode from running the initial load effect twice
+  const initDone = React.useRef(false);
   // Path on the real filesystem (used when browsing directories)
   const [currentPath, setCurrentPath] = useState("");
   // Full path to the currently opened archive file on disk
@@ -193,7 +195,7 @@ const FileManager = () => {
 
   // ── Extract selected files ─────────────────────────────────────────────────
   const extractSelectedFiles = async () => {
-    if (!currentArchive || selectedFiles.length === 0) return;
+    if (!currentArchive) return;
 
     const outputPath = await open({
       directory: true,
@@ -205,10 +207,13 @@ const FileManager = () => {
       return;
     }
 
+    const filePaths =
+      selectedFiles.length > 0 ? selectedFiles.map((f) => f.path) : null;
+
     // Store extraction details for password handling
     const extraction = {
       archivePath: currentArchive,
-      selectedFiles: selectedFiles.map((f) => f.path),
+      selectedFiles: filePaths,
       outputPath,
     };
     setCurrentExtraction(extraction);
@@ -221,7 +226,7 @@ const FileManager = () => {
     try {
       await invoke("extract_files", {
         archivePath: currentArchive,
-        selectedFiles: selectedFiles.map((f) => f.path),
+        selectedFiles: filePaths,
         outputPath,
         password: null, // Try without password first
       });
@@ -236,6 +241,57 @@ const FileManager = () => {
         errorMsg.toLowerCase().includes("protected")
       ) {
         // Show password modal
+        setShowPasswordModal(true);
+        setPasswordError(
+          "This archive is password protected. Please enter the correct password.",
+        );
+      } else {
+        setError(`Failed to extract files: ${errorMsg}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── Extract selected files to the archive's own folder ─────────────────────
+  const extractHere = async () => {
+    if (!currentArchive) return;
+
+    // Derive the parent directory of the archive file
+    const lastSlash = currentArchive.lastIndexOf("/");
+    const outputPath =
+      lastSlash >= 0 ? currentArchive.substring(0, lastSlash) : "/";
+
+    const filePaths =
+      selectedFiles.length > 0 ? selectedFiles.map((f) => f.path) : null;
+
+    const extraction = {
+      archivePath: currentArchive,
+      selectedFiles: filePaths,
+      outputPath,
+    };
+    setCurrentExtraction(extraction);
+
+    setIsLoading(true);
+    setError(null);
+    setPasswordError(null);
+
+    try {
+      await invoke("extract_files", {
+        archivePath: currentArchive,
+        selectedFiles: filePaths,
+        outputPath,
+        password: null,
+      });
+    } catch (err) {
+      console.error("extractHere error:", err);
+      const errorMsg = err.message || err;
+
+      if (
+        errorMsg.toLowerCase().includes("password") ||
+        errorMsg.toLowerCase().includes("encrypted") ||
+        errorMsg.toLowerCase().includes("protected")
+      ) {
         setShowPasswordModal(true);
         setPasswordError(
           "This archive is password protected. Please enter the correct password.",
@@ -290,24 +346,6 @@ const FileManager = () => {
     setShowPasswordModal(false);
     setPasswordError(null);
     setCurrentExtraction(null);
-  };
-
-  // ── View selected file in archive ──────────────────────────────────────────
-  const viewSelectedFile = async () => {
-    if (!currentArchive || selectedFiles.length !== 1) return;
-
-    const file = selectedFiles[0];
-    if (file.is_dir) return;
-
-    try {
-      await invoke("view_file_in_archive", {
-        archivePath: currentArchive,
-        fileName: file.path.replace(/\/$/, ""),
-      });
-    } catch (err) {
-      console.error("view_file_in_archive error:", err);
-      setError(`Failed to view file: ${err.message || err}`);
-    }
   };
 
   // ── Show checksum modal for the current archive ────────────────────────────
@@ -397,31 +435,24 @@ const FileManager = () => {
 
   // ── Initial load from CLI args or home dir ─────────────────────────────────
   useEffect(() => {
-    getMatches().then((matches) => {
-      const source = matches.args?.source?.value;
-      console.log("Source ", source);
-      if (source) {
-        if (isArchiveFile(source)) {
-          loadArchiveContents(source, "");
-        } else {
-          loadDirectory(source);
-        }
-      } else {
-        invoke("take_files").then((files) => {
-          console.log("take_files result", files);
-          if (files && files.length > 0) {
-            if (isArchiveFile(files[0])) {
-              loadArchiveContents(files[0], "");
-            } else {
-              loadDirectory(files[0]);
-            }
-          } else {
-            homeDir().then((dir) => loadDirectory(dir));
-          }
-        });
-      }
-    });
+    if (initDone.current) return;
+    initDone.current = true;
+
     emit("frontend-ready");
+    invoke("take_files")
+      .then((files) => {
+        console.log("take_files result", files);
+        if (files && files.length > 0) {
+          if (isArchiveFile(files[0])) {
+            loadArchiveContents(files[0], "");
+          } else {
+            loadDirectory(files[0]);
+          }
+        } else {
+          homeDir().then((dir) => loadDirectory(dir));
+        }
+      })
+      .catch(() => homeDir().then((dir) => loadDirectory(dir)));
   }, []);
 
   // ── Handle file-open events (e.g. double-clicking an archive in Finder) ────
@@ -573,7 +604,7 @@ const FileManager = () => {
           <div className="shrink-0">
             <Toolbar
               onExtract={extractSelectedFiles}
-              onView={viewSelectedFile}
+              onExtractHere={extractHere}
               onOpen={openSelected}
               onChecksum={showChecksum}
               onCreateArchive={openCreateArchiveModal}

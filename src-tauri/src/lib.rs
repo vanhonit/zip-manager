@@ -432,8 +432,127 @@ fn push_file(app: &tauri::AppHandle, path: String) {
 #[tauri::command]
 fn take_files(state: tauri::State<PendingFiles>) -> Vec<String> {
     let mut files = state.files.lock().unwrap();
+    println!("Fetching files");
     files.drain(..).collect()
 }
+
+// === START: CLI feature ===
+// handle_cli is the top-level CLI dispatcher called at app startup.
+//
+// Supported invocations:
+//   app <path>                     → open the archive in the UI (show contents)
+//   app extract <path>             → extract to archive's parent directory (default)
+//   app extract <path> --here      → extract to archive's parent directory
+//   app extract <path> --to <dest> → extract to a specific destination directory
+pub fn handle_cli(app: AppHandle) {
+    let raw_args: Vec<String> = std::env::args().collect();
+
+    match raw_args.get(1).map(|s| s.as_str()) {
+        // 'extract' subcommand → delegate to CLI plugin for structured option parsing.
+        // cli().matches() is ONLY called here, so clap never sees bare file paths
+        // and can never throw "unexpected argument" for them.
+        Some("extract") => {
+            use tauri_plugin_cli::CliExt;
+            if let Ok(matches) = app.cli().matches() {
+                if let Some(sub) = matches.subcommand.as_deref() {
+                    if sub.name == "extract" {
+                        handle_extract(&app, &sub.matches);
+                    }
+                }
+            }
+        }
+
+        // Bare file path → open the archive and show its contents in the UI.
+        Some(first_arg) if !first_arg.starts_with('-') => {
+            let p = PathBuf::from(first_arg);
+            if p.exists() && p.is_file() {
+                log::info!("Opening archive from CLI: {}", first_arg);
+                push_file(&app, first_arg.to_string());
+            } else {
+                eprintln!("Archive file not found: {}", first_arg);
+            }
+        }
+
+        // No arguments or flags only → normal app launch, nothing to do.
+        _ => {}
+    }
+}
+
+// handle_extract performs the fast-extraction flow for `app extract <path> [options]`.
+fn handle_extract(app: &AppHandle, sub: &tauri_plugin_cli::Matches) {
+    // Retrieve the required positional 'source' argument.
+    let archive = match sub.args.get("source").and_then(|a| a.value.as_str()) {
+        Some(v) => v.to_string(),
+        None => {
+            eprintln!(
+                "Missing archive path. Usage: app extract <archive> [--here | --to <destination>]"
+            );
+            return;
+        }
+    };
+
+    // Verify the archive file exists.
+    if !PathBuf::from(&archive).exists() {
+        eprintln!("Archive file not found: {}", archive);
+        return;
+    }
+
+    // Determine the destination directory.
+    //
+    // Priority:
+    //   1. --to <dest>  → extract to the given directory
+    //   2. (default)    → extract here (archive's parent directory)
+    //
+    // --here is provided for discoverability but behaves identically to the
+    // default, so we do not need to check it separately.
+    let dest = match sub
+        .args
+        .get("to")
+        .and_then(|a| a.value.as_str())
+        .map(|s| s.to_string())
+    {
+        Some(dest_str) => {
+            let dest_path = PathBuf::from(&dest_str);
+            if !dest_path.exists() {
+                eprintln!("Destination directory does not exist: {}", dest_str);
+                return;
+            }
+            if !dest_path.is_dir() {
+                eprintln!("Destination is not a directory: {}", dest_str);
+                return;
+            }
+            dest_str
+        }
+        None => {
+            // Default: extract to the archive's parent directory (same as --here).
+            match PathBuf::from(&archive).parent() {
+                Some(p) => p.to_string_lossy().to_string(),
+                None => {
+                    eprintln!("Failed to determine parent directory for: {}", archive);
+                    return;
+                }
+            }
+        }
+    };
+
+    println!("🗜️ Starting CLI extraction: {} -> {}", archive, dest);
+    log::info!("Starting CLI extraction: {} -> {}", archive, dest);
+
+    let app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        match extract_files(app.clone(), archive.clone(), dest.clone(), None, None).await {
+            Ok(_) => {
+                println!("✅ CLI extraction completed: {}", archive);
+                log::info!("CLI extraction completed: {}", archive);
+            }
+            Err(e) => {
+                eprintln!("❌ CLI extraction failed for {}: {}", archive, e);
+                log::error!("CLI extraction failed for {}: {}", archive, e);
+            }
+        }
+    });
+}
+// === END: CLI feature ===
 
 pub fn run() {
     tauri::Builder::default()
@@ -494,6 +613,14 @@ pub fn run() {
             //     files: Mutex::new(vec![]),
             // });
             let handle = app.handle().clone();
+            // === START: CLI feature ===
+            // Handle CLI arguments using tauri_plugin_cli.
+            // - app <path>                     → open archive in the UI
+            // - app extract <path>             → extract here (default)
+            // - app extract <path> --here      → extract here
+            // - app extract <path> --to <dest> → extract to destination
+            handle_cli(handle.clone());
+            // === END: CLI feature ===
             // =========================
             // Frontend ready handshake
             // =========================
@@ -501,23 +628,8 @@ pub fn run() {
                 println!("🔥 Frontend ready");
                 let state = handle.state::<PendingFiles>();
                 *state.is_ready.lock().unwrap() = true;
-                let mut files = state.files.lock().unwrap();
-                // for file in files.drain(..) {
-                //     println!("🚀 Sending to frontend: {}", file);
-                //     log::info!("send: {}", file);
-                //     handle.emit("file-open", file).unwrap();
-                // }
             });
-            // =========================
-            // CLI arguments (first launch)
-            // =========================
-            let args: Vec<String> = std::env::args().collect();
-            println!("📂 CLI args: {:?}", args);
-            if args.len() > 1 {
-                for arg in args.iter().skip(1) {
-                    push_file(&app.handle(), arg.clone());
-                }
-            }
+
             Ok(())
         })
         .on_window_event(|window, event| match event {

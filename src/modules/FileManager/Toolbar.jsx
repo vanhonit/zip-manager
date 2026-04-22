@@ -1,8 +1,63 @@
 import React, { useState } from "react";
 
+// ── Reusable toolbar button ────────────────────────────────────────────────
+function ToolbarButton({
+  onClick,
+  disabled,
+  title,
+  icon,
+  label,
+  badge,
+  shortcut,
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={`
+        relative flex flex-col items-center justify-center gap-0.5
+        px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg min-w-[40px]
+        transition-all duration-150 select-none
+        ${
+          disabled
+            ? "text-white/35 cursor-not-allowed"
+            : "text-white hover:bg-white/20 active:bg-white/30 active:scale-95 cursor-pointer"
+        }
+      `}
+    >
+      <div className="relative">
+        <i className={`${icon} text-lg sm:text-xl leading-none`}></i>
+        {badge != null && badge > 0 && (
+          <span className="absolute -top-1.5 -right-2 min-w-[14px] px-1 bg-white text-blue-600 text-[9px] font-bold rounded-full leading-[14px] text-center shadow-sm">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
+      </div>
+      <span className="text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap">
+        {label}
+      </span>
+      {shortcut && !disabled && (
+        <kbd className="absolute -top-1 -right-1 px-1 bg-white/30 text-white text-[8px] font-bold rounded shadow-sm leading-[11px]">
+          {shortcut}
+        </kbd>
+      )}
+    </button>
+  );
+}
+
+// ── Vertical divider between button groups ────────────────────────────────
+function ToolbarDivider() {
+  return (
+    <div className="w-px h-7 sm:h-8 bg-white/20 mx-0.5 sm:mx-1 flex-shrink-0" />
+  );
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────
 function Toolbar({
   onExtract,
-  onView,
+  onExtractHere,
+
   onOpen,
   onChecksum,
   onCreateArchive,
@@ -17,11 +72,13 @@ function Toolbar({
   searchQuery = "",
 }) {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
   const allSelected = totalCount > 0 && selectedCount === totalCount;
   const hasSelection = selectedCount > 0;
   const hasSingleSelection = selectedCount === 1;
-  const canExtract = isInArchive && hasSelection && !disabled;
-  const canView = isInArchive && hasSingleSelection && !disabled;
+  const canExtract = isInArchive && !disabled;
+  const canExtractHere = isInArchive && !disabled;
+
   const canOpen = hasSingleSelection && !disabled;
   const canChecksum = hasArchivePath && !disabled;
   const canCreateArchive = hasSelection && !isInArchive && !disabled;
@@ -30,171 +87,102 @@ function Toolbar({
   const hasSearch = searchQuery && searchQuery.trim().length > 0;
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-      <div className="flex items-center justify-between gap-2 sm:gap-4">
-        {/* Left Side - File Actions */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Open Button */}
-          <button
-            onClick={onOpen}
-            disabled={!canOpen}
-            title={
-              !hasSingleSelection
-                ? "Select a single file or folder to open"
-                : "Open selected item (Enter)"
-            }
-            className={`
-              relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-              transition-all duration-200
-              ${canOpen
-                ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-              }
-            `}
-          >
-            <div className="flex flex-col items-center">
-              <i className="ri-arrow-right-s-line text-lg sm:text-xl"></i>
-              <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Open</span>
-            </div>
-            {hasSingleSelection && (
-              <kbd className="absolute -top-1 -right-1 px-1 py-0.5 bg-white/30 text-white text-[9px] font-bold rounded shadow-sm">↵</kbd>
-            )}
-          </button>
+    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-2 sm:px-3 py-1 sm:py-1.5 shadow-lg">
+      <div className="flex items-center gap-0.5 sm:gap-1">
+        {/* ── Group 1: Open ──────────────────────────────────────── */}
+        <ToolbarButton
+          onClick={onOpen}
+          disabled={!canOpen}
+          title={
+            !hasSingleSelection
+              ? "Select a single file or folder to open"
+              : "Open selected item"
+          }
+          icon="ri-arrow-right-s-line"
+          label="Open"
+          shortcut={hasSingleSelection ? "↵" : null}
+        />
 
-          {/* Extract Button */}
-          <button
-            onClick={onExtract}
-            disabled={!canExtract}
-            title={
-              !isInArchive
-                ? "Available only when browsing archives"
-                : !hasSelection
-                  ? "Select files to extract"
-                  : "Extract selected files"
-            }
-            className={`
-              relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-              transition-all duration-200
-              ${canExtract
-                ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-              }
-            `}
-          >
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                <i className="ri-file-zip-fill text-lg sm:text-xl"></i>
-                {hasSelection && (
-                  <span className="absolute -top-1 -right-2 px-1 py-0.5 bg-white text-blue-600 text-[9px] font-bold rounded-full shadow-sm min-w-[14px] text-center">
-                    {selectedCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Extract</span>
-            </div>
-          </button>
+        <ToolbarDivider />
 
-          {/* View Button */}
-          <button
-            onClick={onView}
-            disabled={!canView}
-            title={
-              !isInArchive
-                ? "Available only when browsing archives"
-                : selectedCount !== 1
-                  ? "Select exactly one file to view"
-                  : "View file in default application"
-            }
-            className={`
-              relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-              transition-all duration-200
-              ${canView
-                ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-              }
-            `}
-          >
-            <div className="flex flex-col items-center">
-              <i className="ri-eye-fill text-lg sm:text-xl"></i>
-              <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">View</span>
-            </div>
-          </button>
+        {/* ── Group 2: Extract ───────────────────────────────────── */}
+        <ToolbarButton
+          onClick={onExtract}
+          disabled={!canExtract}
+          title={
+            !isInArchive
+              ? "Available only when browsing archives"
+              : hasSelection
+                ? "Extract selected files — choose destination folder"
+                : "Extract all files — choose destination folder"
+          }
+          icon="ri-file-zip-fill"
+          label="Extract…"
+          badge={canExtract && hasSelection ? selectedCount : null}
+        />
 
-          {/* Checksum Button */}
-          <button
-            onClick={onChecksum}
-            disabled={!canChecksum}
-            title={
-              !hasArchivePath
-                ? "Open an archive file to compute checksum"
-                : "Compute checksum for this archive"
-            }
-            className={`
-              relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-              transition-all duration-200
-              ${canChecksum
-                ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-              }
-            `}
-          >
-            <div className="flex flex-col items-center">
-              <i className="ri-shield-check-fill text-lg sm:text-xl"></i>
-              <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Checksum</span>
-            </div>
-          </button>
+        <ToolbarButton
+          onClick={onExtractHere}
+          disabled={!canExtractHere}
+          title={
+            !isInArchive
+              ? "Available only when browsing archives"
+              : hasSelection
+                ? "Extract selected files to the archive's own folder"
+                : "Extract all files to the archive's own folder"
+          }
+          icon="ri-folder-download-fill"
+          label="Extract Here"
+          badge={canExtractHere && hasSelection ? selectedCount : null}
+        />
 
-          {/* Create Archive Button */}
-          <button
-            onClick={onCreateArchive}
-            disabled={!canCreateArchive}
-            title={
-              !hasSelection
-                ? "Select files to create archive"
-                : isInArchive
-                  ? "Cannot create archive from archive contents"
-                  : "Create archive from selected files (⌘N)"
-            }
-            className={`
-              relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-              transition-all duration-200
-              ${canCreateArchive
-                ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-              }
-            `}
-          >
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                <i className="ri-archive-2-fill text-lg sm:text-xl"></i>
-                {hasSelection && (
-                  <span className="absolute -top-1 -right-2 px-1 py-0.5 bg-white text-purple-600 text-[9px] font-bold rounded-full shadow-sm min-w-[14px] text-center">
-                    {selectedCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Archive</span>
-            </div>
-          </button>
+        <ToolbarDivider />
 
-        </div>
+        {/* ── Group 4: Archive utilities ─────────────────────────── */}
+        <ToolbarButton
+          onClick={onChecksum}
+          disabled={!canChecksum}
+          title={
+            !hasArchivePath
+              ? "Open an archive file to compute checksum"
+              : "Compute checksum for this archive"
+          }
+          icon="ri-shield-check-fill"
+          label="Checksum"
+        />
 
-        {/* Middle - Search Box */}
-        <div className="flex-1 max-w-md mx-2 sm:mx-4">
+        <ToolbarButton
+          onClick={onCreateArchive}
+          disabled={!canCreateArchive}
+          title={
+            !hasSelection
+              ? "Select files to create archive"
+              : isInArchive
+                ? "Cannot create archive from archive contents"
+                : "Create archive from selected files (⌘N)"
+          }
+          icon="ri-archive-2-fill"
+          label="Archive"
+          badge={canCreateArchive ? selectedCount : null}
+          shortcut={canCreateArchive ? "⌘N" : null}
+        />
+
+        {/* ── Search — takes remaining space ─────────────────────── */}
+        <div className="flex-1 mx-1.5 sm:mx-2 min-w-0">
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
-              <i className="ri-search-line text-white/60 text-sm sm:text-base group-hover:text-white transition-colors"></i>
+            <div className="absolute inset-y-0 left-0 pl-2 sm:pl-2.5 flex items-center pointer-events-none">
+              <i className="ri-search-line text-white/60 text-sm group-focus-within:text-white transition-colors"></i>
             </div>
             <input
               type="text"
-              placeholder="Search files..."
+              placeholder="Search files…"
               value={localSearchQuery}
               onChange={(e) => {
-                const newValue = e.target.value;
-                setLocalSearchQuery(newValue);
-                onSearchChange && onSearchChange(newValue);
+                const v = e.target.value;
+                setLocalSearchQuery(v);
+                onSearchChange && onSearchChange(v);
               }}
-              className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white/40 transition-all backdrop-blur-sm"
+              className="w-full pl-7 sm:pl-8 pr-7 sm:pr-8 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white text-xs sm:text-sm placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white/40 transition-all backdrop-blur-sm"
             />
             {hasSearch && (
               <button
@@ -202,63 +190,39 @@ function Toolbar({
                   setLocalSearchQuery("");
                   onSearchChange && onSearchChange("");
                 }}
-                className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center text-white/60 hover:text-white hover:bg-white/10 rounded-full px-1.5 py-1 m-1 transition-all"
+                className="absolute inset-y-0 right-0 pr-2 flex items-center text-white/60 hover:text-white transition-colors"
                 title="Clear search"
               >
-                <i className="ri-close-line text-sm sm:text-base"></i>
+                <i className="ri-close-line text-sm"></i>
               </button>
             )}
           </div>
         </div>
 
-        {/* Right Side - Selection Controls */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {!hasSelection ? (
-            <button
-              onClick={onSelectAll}
-              disabled={!canSelectAll}
-              title={
-                allSelected
-                  ? "All files already selected"
-                  : totalCount === 0
-                    ? "No files to select"
-                    : "Select all files"
-              }
-              className={`
-                relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-                transition-all duration-200
-                ${canSelectAll
-                  ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                  : "bg-white/10 text-white/50 cursor-not-allowed"
-                }
-              `}
-            >
-              <div className="flex flex-col items-center">
-                <i className={`ri-checkbox-multiple-line text-lg sm:text-xl ${canSelectAll ? 'group-hover:scale-110' : ''} transition-transform duration-200`}></i>
-                <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Select All</span>
-              </div>
-            </button>
-          ) : (
-            <button
-              onClick={onDeselectAll}
-              disabled={!canDeselectAll}
-              title="Clear selection"
-              className={`
-                relative group flex items-center justify-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-                transition-all duration-200
-                ${canDeselectAll
-                  ? "bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-                  : "bg-white/10 text-white/50 cursor-not-allowed"
-                }
-              `}
-            >
-              <div className="flex flex-col items-center">
-                <i className="ri-close-circle-line text-lg sm:text-xl"></i>
-                <span className="text-[9px] sm:text-[10px] mt-0.5 font-medium">Clear</span>
-              </div>
-            </button>
-          )}
-        </div>
+        {/* ── Selection control ──────────────────────────────────── */}
+        {!hasSelection ? (
+          <ToolbarButton
+            onClick={onSelectAll}
+            disabled={!canSelectAll}
+            title={
+              allSelected
+                ? "All files already selected"
+                : totalCount === 0
+                  ? "No files to select"
+                  : "Select all files"
+            }
+            icon="ri-checkbox-multiple-line"
+            label="Select All"
+          />
+        ) : (
+          <ToolbarButton
+            onClick={onDeselectAll}
+            disabled={!canDeselectAll}
+            title="Clear selection"
+            icon="ri-close-circle-line"
+            label="Deselect"
+          />
+        )}
       </div>
     </div>
   );
