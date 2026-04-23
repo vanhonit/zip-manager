@@ -2,7 +2,7 @@
 
 A modern, cross-platform desktop archive manager built with Tauri (Rust backend) and React (frontend). Rusty Compress provides a unified, efficient interface for browsing, extracting, and managing various archive formats including ZIP, TAR, and RAR archives.
 
-![Rusty Compress Logo](#)
+![Rusty Compress Logo](src-tauri/icons/icon.png)
 
 ## Features
 
