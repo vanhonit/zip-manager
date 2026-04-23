@@ -9,7 +9,7 @@ github_username: "vanhonit"
 github_repository: "rusty-compress"
 
 # URL settings
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/rusty-compress" # the subpath of your site
 url: "https://vanhonit.github.io" # the base hostname & protocol for your site
 
 # Build settings
