@@ -162,6 +162,7 @@ pub fn unarchive_zip_file(
         .map_err(|e| format!("Failed to create extraction directory: {}", e))?;
 
     // Extract files with progress tracking and cancellation support
+    let mut files_extracted_count = 0; // Track actual extracted files
     for i in 0..archive.len() {
         // Check for cancellation
         if config.cancel.load(Ordering::Relaxed) {
@@ -225,13 +226,18 @@ pub fn unarchive_zip_file(
         // Copy file contents
         match io::copy(&mut file, &mut outfile) {
             Ok(_) => {
+                // Increment the actual extracted file counter
+                files_extracted_count += 1;
+
                 // Update and emit progress
-                progress.update(i + 1);
-                eprint!("Extracted {}/{} files\n", i + 1, total_files);
+                progress.update(files_extracted_count);
+                eprint!("Extracted {}/{} files\n", files_extracted_count, total_files);
+
                 // Emit progress event with file count and percentage
                 let progress_value = progress.get();
                 let progress_data = serde_json::json!({
-                    "files": i + 1,
+                    "files": files_extracted_count,
+                    "total": total_files,
                     "percentage": progress_value
                 });
                 let _ = app_handle.emit("extract-progress", progress_data);

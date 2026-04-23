@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 const CompressionProgressWindow = () => {
   const [progress, setProgress] = useState({
@@ -33,7 +34,7 @@ const CompressionProgressWindow = () => {
         setIsComplete(true);
         // Auto-close after 2 seconds
         setTimeout(() => {
-          window.close();
+          getCurrentWindow().close();
         }, 2000);
       }
     );

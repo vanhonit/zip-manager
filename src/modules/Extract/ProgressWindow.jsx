@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { listen, emit } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 function ProgressWindow({ name }) {
   const [progress, setProgress] = useState(0);
   const [filesExtracted, setFilesExtracted] = useState(0);
+  const [totalFiles, setTotalFiles] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
@@ -18,6 +20,9 @@ function ProgressWindow({ name }) {
       ) {
         setProgress(progressData.percentage || 0);
         setFilesExtracted(progressData.files || 0);
+        if (progressData.total !== undefined) {
+          setTotalFiles(progressData.total);
+        }
       } else {
         setProgress(progressData || 0);
       }
@@ -26,9 +31,6 @@ function ProgressWindow({ name }) {
     const unlistenComplete = listen("extract-complete", () => {
       setIsComplete(true);
       setProgress(100);
-      setTimeout(() => {
-        window.close();
-      }, 1200);
     });
 
     const unlistenError = listen("extract-error", (event) => {
@@ -101,7 +103,9 @@ function ProgressWindow({ name }) {
       <div className="shrink-0 text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
         <i className="ri-file-zip-line text-blue-400 text-sm sm:text-base"></i>
         <span className="font-bold text-slate-300">{filesExtracted}</span>
-        <span>files extracted</span>
+        <span>
+          {totalFiles > 0 ? `/ ${totalFiles} ` : ''}files extracted
+        </span>
       </div>
 
       {/* Status Messages */}
@@ -119,11 +123,11 @@ function ProgressWindow({ name }) {
         )}
 
         {isComplete && (
-          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-green-500 bg-opacity-10 rounded-xl border-2 border-green-500 border-opacity-20">
+          <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-green-500 bg-opacity-15 rounded-xl border-2 border-green-500 border-opacity-30 shadow-lg shadow-green-500/20">
             <i className="ri-checkbox-circle-line text-green-400 text-xl sm:text-2xl flex-shrink-0"></i>
-            <div>
-              <p className="text-xs sm:text-sm text-green-300 font-bold">Extraction complete!</p>
-              <p className="text-xs text-green-400 mt-1">All files have been extracted successfully</p>
+            <div className="flex-1">
+              <p className="text-xs sm:text-sm text-green-300 font-bold mb-1">Extraction complete!</p>
+              <p className="text-xs text-green-400">All files have been extracted successfully</p>
             </div>
           </div>
         )}
@@ -140,8 +144,24 @@ function ProgressWindow({ name }) {
       </div>
 
       {/* Footer Info */}
-      <div className="shrink-0 mt-2 sm:mt-4 text-xs text-slate-500 border-t border-slate-700 pt-2 sm:pt-3">
-        <p>Extracting to your selected destination...</p>
+      <div className="shrink-0 mt-2 sm:mt-4 border-t border-slate-700 pt-2 sm:pt-3">
+        {!isComplete && !error && (
+          <p className="text-xs text-slate-500">Extracting to your selected destination...</p>
+        )}
+
+        {(isComplete || error) && (
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-slate-500">
+              {isComplete ? 'Extraction completed successfully!' : 'Extraction failed.'}
+            </p>
+            <button
+              onClick={() => getCurrentWindow().close()}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors duration-200 shadow-lg shadow-blue-500/30"
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

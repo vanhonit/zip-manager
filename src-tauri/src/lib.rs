@@ -571,9 +571,7 @@ pub fn run() {
                 // running instance can navigate to it.
                 for (index, arg) in args.iter().enumerate().skip(1) {
                     println!("📂 Processing argument {}: {}", index, arg);
-                    for arg in args.iter().skip(1) {
-                        push_file(&app_handle, arg.clone());
-                    }
+                    push_file(&app_handle, arg.clone());
                     // match app_handle.emit("file-open", arg.clone()) {
                     //     Ok(_) => println!("✅ Successfully emitted file-open event for: {}", arg),
                     //     Err(e) => println!("❌ Failed to emit file-open event: {}", e),

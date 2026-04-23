@@ -248,6 +248,7 @@ pub fn unarchive_rar_file(app_handle: AppHandle, config: ExtractionConfig) -> Re
                     let progress_value = progress.get();
                     let progress_data = serde_json::json!({
                         "files": count,
+                        "total": total_files,
                         "percentage": progress_value
                     });
                     let _ = app_handle.emit("extract-progress", progress_data);

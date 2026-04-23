@@ -9,6 +9,7 @@
   "permissions": [
     "core:default",
     "core:path:default",
+    "core:window:allow-close",
     "shell:allow-open",
     "dialog:default"
   ]
