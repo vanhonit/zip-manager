@@ -13,7 +13,7 @@ subtitle: A modern, cross-platform desktop archive manager
         </p>
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
             <a href="/installation.html" class="btn">Get Started</a>
-            <a href="https://github.com/vanhonit/zip-manager" class="btn btn-secondary">View on GitHub</a>
+            <a href="https://github.com/vanhonit/rusty-compress" class="btn btn-secondary">View on GitHub</a>
         </div>
     </div>
 </div>
@@ -71,7 +71,7 @@ subtitle: A modern, cross-platform desktop archive manager
     <p style="color: rgba(255,255,255,0.9);">Follow these simple steps to get Rusty Compress running on your system:</p>
     <ol style="color: rgba(255,255,255,0.9);">
         <li>Install Node.js, npm, and Rust on your system</li>
-        <li>Clone the repository: <code>git clone https://github.com/vanhonit/zip-manager.git</code></li>
+        <li>Clone the repository: <code>git clone https://github.com/vanhonit/rusty-compress.git</code></li>
         <li>Navigate to the directory and install dependencies</li>
         <li>Run <code>npm run tauri dev</code> to start the development server</li>
     </ol>
@@ -125,7 +125,7 @@ Rusty Compress is an open-source project, and we welcome contributions from deve
 - 📖 **Improve Documentation**: Help make the project more accessible
 
 <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
-    <a href="https://github.com/vanhonit/zip-manager/issues" class="btn">Report Issues</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn">Report Issues</a>
     <a href="/contributing.html" class="btn btn-secondary">Contribute</a>
 </div>
 

@@ -150,5 +150,5 @@ Our roadmap includes exciting new capabilities:
         <h3 class="card-title" style="color: white;">🚀 Help Shape the Future</h3>
     </div>
     <p style="color: rgba(255,255,255,0.9);">Have a feature idea or enhancement suggestion? We'd love to hear from you! Your feedback helps us prioritize and improve Rusty Compress.</p>
-    <a href="https://github.com/vanhonit/zip-manager/issues" class="btn" style="background: white; color: #667eea;">Suggest a Feature</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn" style="background: white; color: #667eea;">Suggest a Feature</a>
 </div>

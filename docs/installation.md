@@ -45,8 +45,8 @@ sudo pacman -S base-devel webkit2gtk openssl gtk3 libappindicator-gtk3
 #### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/vanhonit/zip-manager.git
-cd zip-manager
+git clone https://github.com/vanhonit/rusty-compress.git
+cd rusty-compress
 ```
 
 #### Step 2: Install Dependencies
@@ -278,5 +278,5 @@ Once installed:
         <h3 class="card-title" style="color: white;">💡 Need Help?</h3>
     </div>
     <p style="color: rgba(255,255,255,0.9);">If you encounter any issues during installation, please check our troubleshooting section or open an issue on GitHub.</p>
-    <a href="https://github.com/vanhonit/zip-manager/issues" class="btn" style="background: white; color: #667eea;">Get Support</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn" style="background: white; color: #667eea;">Get Support</a>
 </div>

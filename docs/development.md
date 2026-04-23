@@ -33,11 +33,11 @@ Before starting development, ensure you have:
 ```bash
 # Fork the repository on GitHub
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/zip-manager.git
-cd zip-manager
+git clone https://github.com/YOUR_USERNAME/rusty-compress.git
+cd rusty-compress
 
 # Add upstream repository
-git remote add upstream https://github.com/vanhonit/zip-manager.git
+git remote add upstream https://github.com/vanhonit/rusty-compress.git
 ```
 
 ### Step 2: Install Dependencies
@@ -62,7 +62,7 @@ code --install-extension rust-lang.rust-analyzer
 ## Project Structure
 
 ```
-zip-manager/
+rusty-compress/
 ├── src/                      # React Frontend
 │   ├── components/           # Reusable components
 │   ├── modules/              # Feature modules
@@ -556,7 +556,7 @@ Keep the API documentation up to date:
 - [Tauri Documentation](https://tauri.app/v1/guides/)
 - [React Documentation](https://react.dev/)
 - [Rust Book](https://doc.rust-lang.org/book/)
-- [Project Issues](https://github.com/vanhonit/zip-manager/issues)
+- [Project Issues](https://github.com/vanhonit/rusty-compress/issues)
 
 ### Community
 
@@ -569,6 +569,6 @@ Keep the API documentation up to date:
         <h3 class="card-title" style="color: white;">🚀 Ready to Contribute?</h3>
     </div>
     <p style="color: rgba(255,255,255,0.9);">We welcome contributions from developers of all skill levels. Check out our open issues and start making a difference!</p>
-    <a href="https://github.com/vanhonit/zip-manager/issues" class="btn" style="background: white; color: #667eea;">Find Issues to Work On</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn" style="background: white; color: #667eea;">Find Issues to Work On</a>
     <a href="/contributing.html" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Contributing Guide</a>
 </div>

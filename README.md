@@ -39,7 +39,7 @@ Before you begin, ensure you have the following installed:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/rusty-compress.git
+git clone https://github.com/vanhonit/rusty-compress.git
 cd rusty-compress
 ```
 
@@ -107,7 +107,7 @@ This creates platform-specific installers in `src-tauri/target/release/bundle/`:
 ## Project Structure
 
 ```
-zip-manager/
+rusty-compress/
 ├── src/                          # React frontend
 │   ├── components/               # Reusable UI components
 │   │   ├── Tab.jsx              # Tab component for file/archive views

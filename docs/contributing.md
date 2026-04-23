@@ -61,8 +61,8 @@ Ready to write code? Great!
 ```bash
 # Fork the repository
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/zip-manager.git
-cd zip-manager
+git clone https://github.com/YOUR_USERNAME/rusty-compress.git
+cd rusty-compress
 
 # Install dependencies
 npm install
@@ -447,6 +447,6 @@ Every contribution, no matter how small, makes a difference. Thank you for helpi
         <h3 class="card-title" style="color: white;">🎯 Ready to Make Your First Contribution?</h3>
     </div>
     <p style="color: rgba(255,255,255,0.9);">Start by finding a "good first issue" or helping improve documentation. Every contribution counts!</p>
-    <a href="https://github.com/vanhonit/zip-manager/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="btn" style="background: white; color: #667eea;">Find Good First Issues</a>
-    <a href="https://github.com/vanhonit/zip-manager/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Help Wanted</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="btn" style="background: white; color: #667eea;">Find Good First Issues</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Help Wanted</a>
 </div>
