@@ -142,7 +142,7 @@ async fn extract_files(
     )
     .title("Extraction Progress")
     .resizable(false)
-    .inner_size(420.0, 250.0)
+    .inner_size(450.0, 300.0)
     .build()
     .map_err(|e| e.to_string())?;
 

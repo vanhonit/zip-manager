@@ -87,71 +87,56 @@
 
 /* Tab Bar Styles */
 .tab-bar {
-    @apply bg-white border-b border-gray-200 px-2 py-1;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .tab-item {
-    @apply flex items-center gap-2 px-3 py-2 rounded-t-lg cursor-pointer transition-all select-none;
-    min-width: 120px;
-    max-width: 200px;
+    @apply flex items-center gap-2 px-4 py-2.5 cursor-pointer select-none;
+    min-width: 140px;
+    max-width: 220px;
     position: relative;
     user-select: none;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-item-active {
-    @apply bg-white text-blue-600;
-    border-top: 2px solid #3b82f6;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
+    @apply text-blue-700;
+    z-index: 10;
+    background: #ffffff;
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.06);
+    border-bottom: 2px solid #6366f1;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-item-inactive {
-    @apply text-gray-600 hover:bg-gray-100;
+    @apply text-slate-600;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-item-inactive:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-item:focus {
     outline: none;
-    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.5);
+    box-shadow: inset 0 0 0 2px rgba(99, 102, 241, 0.3);
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-close {
-    @apply flex-shrink-0 p-1 rounded transition-colors;
-    opacity: 0.8;
-    width: 24px;
-    height: 24px;
+    @apply flex-shrink-0 rounded-md;
+    opacity: 0;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
-    border-radius: 4px;
 }
 
-.tab-close:hover {
+.tab-item:hover .tab-close {
     opacity: 1;
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-    transform: scale(1.05);
-}
-
-.tab-close:active {
-    transform: scale(0.95);
-}
-
-/* Tab bar scrollbar for horizontal scrolling */
-.tab-bar > div::-webkit-scrollbar {
-    height: 4px;
-}
-
-.tab-bar > div::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.tab-bar > div::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
-}
-
-.tab-bar > div::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
 }

@@ -935,7 +935,7 @@ const FileManager = () => {
 
             {/* File List */}
             {!currentTab.isLoading && (
-              <div className="flex-1 overflow-hidden">
+              <div key={currentTab.id} className="flex-1 overflow-hidden">
                 <FileList
                   files={filteredFiles}
                   onOpenFile={(file) => onOpenFile(file, currentTab.id)}

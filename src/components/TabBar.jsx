@@ -80,8 +80,8 @@ const TabBar = () => {
   };
 
   return (
-    <div className="tab-bar bg-white border-b border-gray-200 px-2 py-1">
-      <div className="flex items-center gap-1 overflow-x-auto">
+    <div className="tab-bar">
+      <div className="flex items-center gap-0.5 overflow-x-auto px-1 pt-1">
         {/* Render all tabs */}
         {tabs.map((tab) => (
           <Tab
@@ -99,15 +99,15 @@ const TabBar = () => {
         {/* New Tab Button */}
         <button
           className="
-            flex items-center justify-center gap-1 px-3 py-2 rounded-lg
-            text-gray-500 hover:bg-gray-100 hover:text-gray-700
-            transition-all duration-150 select-none min-w-[40px]
+            flex items-center justify-center w-8 h-8 rounded-lg ml-1 mr-1
+            text-slate-400 hover:text-blue-500 hover:bg-blue-50
+            select-none
           "
           onClick={handleNewTab}
           title="New tab (Cmd+T)"
           aria-label="New tab"
         >
-          <i className="ri-add-line text-sm"></i>
+          <i className="ri-add-line text-lg"></i>
         </button>
       </div>
     </div>
