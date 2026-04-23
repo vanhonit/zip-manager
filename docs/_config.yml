@@ -1,0 +1,65 @@
+# Site settings
+title: "Rusty Compress"
+description: "A modern, cross-platform desktop archive manager built with Tauri and React"
+author: "Hon Nguyen"
+email: "your-email@example.com"
+
+# GitHub specific settings
+github_username: "vanhonit"
+github_repository: "zip-manager"
+
+# URL settings
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://vanhonit.github.io" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Navigation settings
+nav:
+  - title: "Home"
+    url: "/"
+  - title: "Features"
+    url: "/features.html"
+  - title: "Installation"
+    url: "/installation.html"
+  - title: "Usage"
+    url: "/usage.html"
+  - title: "API Reference"
+    url: "/api.html"
+  - title: "Development"
+    url: "/development.html"
+  - title: "Contributing"
+    url: "/contributing.html"
+
+# Social media
+twitter_username: "your-twitter-handle"
+linkedin_username: "your-linkedin-handle"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
