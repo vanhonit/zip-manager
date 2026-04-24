@@ -19,48 +19,43 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
-  build:
+  # Build and deploy job
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
+
       - name: Install dependencies
         run: |
           cd docs
           bundle install
+
       - name: Build site
         run: |
           cd docs
-          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+          bundle exec jekyll build
         env:
           JEKYLL_ENV: production
+
       - name: List built files
         run: |
-          echo "Listing _site directory contents:"
+          echo "Listing docs/_site directory contents:"
           ls -R docs/_site
-          echo "Checking if assets directory exists:"
-          test -d docs/_site/assets && echo "Assets directory exists" || echo "Assets directory missing"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/_site
-
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          retention-days: 1
