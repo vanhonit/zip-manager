@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -33,10 +36,14 @@ jobs:
           JEKYLL_ENV: production
 
       - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-workflow-bookmark@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          branch: gh-pages
-          folder: docs/_site
-          keep-history: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout gh-pages || git checkout --orphan gh-pages
+          git rm -rf .
+          cp -r docs/_site .
+          git add .
+          git commit -m "Deploy to GitHub Pages"
+          git push origin gh-pages --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
