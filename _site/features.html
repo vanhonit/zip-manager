@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link active">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>Features</h1>
+        
+        <p class="subtitle">Powerful archive management capabilities</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <h2 id="archive-format-support">Archive Format Support</h2>
+
+<p>Rusty Compress supports a wide range of archive formats, making it your one-stop solution for all archive management needs.</p>
+
+<h3 id="zip-based-formats">ZIP-based Formats</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Format</th>
+      <th>Description</th>
+      <th>Extensions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>ZIP</strong></td>
+      <td>Standard ZIP archive format</td>
+      <td><code class="language-plaintext highlighter-rouge">.zip</code></td>
+    </tr>
+    <tr>
+      <td><strong>JAR</strong></td>
+      <td>Java Archive files</td>
+      <td><code class="language-plaintext highlighter-rouge">.jar</code></td>
+    </tr>
+    <tr>
+      <td><strong>APK</strong></td>
+      <td>Android application packages</td>
+      <td><code class="language-plaintext highlighter-rouge">.apk</code></td>
+    </tr>
+    <tr>
+      <td><strong>XAPK</strong></td>
+      <td>Android expanded app packages</td>
+      <td><code class="language-plaintext highlighter-rouge">.xapk</code></td>
+    </tr>
+    <tr>
+      <td><strong>IPA</strong></td>
+      <td>iOS application packages</td>
+      <td><code class="language-plaintext highlighter-rouge">.ipa</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="tar-based-formats">TAR-based Formats</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Format</th>
+      <th>Description</th>
+      <th>Extensions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>TAR</strong></td>
+      <td>Unix tar archive format</td>
+      <td><code class="language-plaintext highlighter-rouge">.tar</code></td>
+    </tr>
+    <tr>
+      <td><strong>TAR.GZ</strong></td>
+      <td>Gzip-compressed tar archive</td>
+      <td><code class="language-plaintext highlighter-rouge">.tar.gz</code></td>
+    </tr>
+    <tr>
+      <td><strong>TGZ</strong></td>
+      <td>Alternative gzip-compressed tar</td>
+      <td><code class="language-plaintext highlighter-rouge">.tgz</code></td>
+    </tr>
+    <tr>
+      <td><strong>TAR.BZ2</strong></td>
+      <td>Bzip2-compressed tar archive</td>
+      <td><code class="language-plaintext highlighter-rouge">.tar.bz2</code></td>
+    </tr>
+    <tr>
+      <td><strong>TBZ2</strong></td>
+      <td>Alternative bzip2-compressed tar</td>
+      <td><code class="language-plaintext highlighter-rouge">.tbz2</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="rar-format">RAR Format</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Format</th>
+      <th>Description</th>
+      <th>Extensions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>RAR</strong></td>
+      <td>Roshal Archive format</td>
+      <td><code class="language-plaintext highlighter-rouge">.rar</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="core-features">Core Features</h2>
+
+<h3 id="️-unified-file-system-interface">🗂️ Unified File System Interface</h3>
+
+<ul>
+  <li><strong>Dual-State Browsing</strong>: Seamlessly switch between filesystem directories and archive contents</li>
+  <li><strong>Breadcrumb Navigation</strong>: Easy navigation with clear path indicators</li>
+  <li><strong>Quick File Selection</strong>: Click to select, Ctrl/Cmd+Click for multiple selection</li>
+  <li><strong>File Preview</strong>: View file details and metadata before extraction</li>
+</ul>
+
+<h3 id="-smart-extraction">📤 Smart Extraction</h3>
+
+<ul>
+  <li><strong>Selective Extraction</strong>: Extract specific files or entire archives</li>
+  <li><strong>Progress Tracking</strong>: Real-time updates with detailed progress information</li>
+  <li><strong>Destination Management</strong>: Choose any location for extracted files</li>
+  <li><strong>Error Handling</strong>: Comprehensive error reporting with recovery suggestions</li>
+</ul>
+
+<h3 id="-file-preview">🔍 File Preview</h3>
+
+<ul>
+  <li><strong>Image Preview</strong>: View images directly from archives without extraction</li>
+  <li><strong>Metadata Display</strong>: See file sizes, types, and modification dates</li>
+  <li><strong>Quick View</strong>: Open files in your system default viewer</li>
+  <li><strong>Data URL Support</strong>: Efficient image handling for thumbnails</li>
+</ul>
+
+<h3 id="-checksum-verification">🔐 Checksum Verification</h3>
+
+<ul>
+  <li><strong>Multiple Algorithms</strong>: Support for MD5, SHA1, SHA256, and SHA512</li>
+  <li><strong>Batch Processing</strong>: Compute checksums for multiple files simultaneously</li>
+  <li><strong>Progress Updates</strong>: Real-time progress reporting for large files</li>
+  <li><strong>Result Comparison</strong>: Easy comparison of computed checksums</li>
+</ul>
+
+<h3 id="-performance-optimization">🚀 Performance Optimization</h3>
+
+<ul>
+  <li><strong>Native Rust Backend</strong>: Lightning-fast archive operations</li>
+  <li><strong>Async Processing</strong>: Non-blocking interface for large file operations</li>
+  <li><strong>Memory Efficient</strong>: Optimized memory usage for large archives</li>
+  <li><strong>Caching</strong>: Intelligent caching for improved responsiveness</li>
+</ul>
+
+<h2 id="user-interface-features">User Interface Features</h2>
+
+<h3 id="intuitive-navigation">Intuitive Navigation</h3>
+
+<ul>
+  <li><strong>Tab System</strong>: Multiple tabs for different files/archives</li>
+  <li><strong>Keyboard Shortcuts</strong>: Power-user support with customizable hotkeys</li>
+  <li><strong>Drag and Drop</strong>: Easy file and archive handling</li>
+  <li><strong>Context Menus</strong>: Right-click options for common actions</li>
+</ul>
+
+<h3 id="visual-feedback">Visual Feedback</h3>
+
+<ul>
+  <li><strong>Progress Indicators</strong>: Clear progress bars and status updates</li>
+  <li><strong>Status Messages</strong>: Informative notifications for all operations</li>
+  <li><strong>Error Alerts</strong>: User-friendly error messages with solutions</li>
+  <li><strong>Success Confirmations</strong>: Clear completion notifications</li>
+</ul>
+
+<h3 id="accessibility">Accessibility</h3>
+
+<ul>
+  <li><strong>High Contrast</strong>: Clear, readable interface elements</li>
+  <li><strong>Keyboard Navigation</strong>: Full keyboard accessibility</li>
+  <li><strong>Screen Reader Support</strong>: Compatible with assistive technologies</li>
+  <li><strong>Adjustable Sizing</strong>: Responsive design for different screen sizes</li>
+</ul>
+
+<h2 id="system-integration">System Integration</h2>
+
+<h3 id="file-associations">File Associations</h3>
+
+<ul>
+  <li><strong>Automatic Registration</strong>: Handle supported file types automatically</li>
+  <li><strong>System Integration</strong>: Works with your operating system’s file manager</li>
+  <li><strong>Double-Click Support</strong>: Open archives directly from file browser</li>
+  <li><strong>Context Menu Integration</strong>: Quick access from right-click menus</li>
+</ul>
+
+<h3 id="cross-platform-compatibility">Cross-Platform Compatibility</h3>
+
+<ul>
+  <li><strong>Windows</strong>: Full Windows integration with native look and feel</li>
+  <li><strong>macOS</strong>: macOS-specific features and optimizations</li>
+  <li><strong>Linux</strong>: Comprehensive Linux distribution support</li>
+  <li><strong>Consistent Behavior</strong>: Same functionality across all platforms</li>
+</ul>
+
+<h2 id="advanced-features">Advanced Features</h2>
+
+<h3 id="archive-browsing">Archive Browsing</h3>
+
+<ul>
+  <li><strong>Hierarchical View</strong>: See nested directory structures clearly</li>
+  <li><strong>File Sorting</strong>: Sort by name, size, type, or date</li>
+  <li><strong>Filter Options</strong>: Show/hide hidden files and system files</li>
+  <li><strong>Search Functionality</strong>: Find files within archives quickly</li>
+</ul>
+
+<h3 id="file-management">File Management</h3>
+
+<ul>
+  <li><strong>Extraction Options</strong>: Maintain permissions, timestamps, and attributes</li>
+  <li><strong>Path Preservation</strong>: Keep original directory structures</li>
+  <li><strong>Conflict Resolution</strong>: Smart handling of existing files</li>
+  <li><strong>Batch Operations</strong>: Process multiple files at once</li>
+</ul>
+
+<h3 id="customization">Customization</h3>
+
+<ul>
+  <li><strong>Theme Support</strong>: Light and dark mode options</li>
+  <li><strong>Preference Settings</strong>: Configurable behavior and appearance</li>
+  <li><strong>Window Management</strong>: Remember window size and position</li>
+  <li><strong>Recent Files</strong>: Quick access to recently opened archives</li>
+</ul>
+
+<h2 id="upcoming-features">Upcoming Features</h2>
+
+<p>Our roadmap includes exciting new capabilities:</p>
+
+<ul>
+  <li><strong>Encrypted Archives</strong>: Support for password-protected archives</li>
+  <li><strong>Archive Creation</strong>: Create new archives with various formats</li>
+  <li><strong>Split Archives</strong>: Handle multi-part archive files</li>
+  <li><strong>Batch Extraction</strong>: Extract from multiple archives at once</li>
+  <li><strong>Archive Search</strong>: Advanced search across multiple archives</li>
+  <li><strong>Custom Themes</strong>: User-defined interface themes</li>
+  <li><strong>Plugin System</strong>: Extend functionality with plugins</li>
+</ul>
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+    <div class="card-header">
+        <h3 class="card-title" style="color: white;">🚀 Help Shape the Future</h3>
+    </div>
+    <p style="color: rgba(255,255,255,0.9);">Have a feature idea or enhancement suggestion? We'd love to hear from you! Your feedback helps us prioritize and improve Rusty Compress.</p>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn" style="background: white; color: #667eea;">Suggest a Feature</a>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>

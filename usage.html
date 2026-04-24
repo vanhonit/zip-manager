@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link active">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>Usage</h1>
+        
+        <p class="subtitle">Learn how to use Rusty Compress effectively</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <h2 id="getting-started-with-rusty-compress">Getting Started with Rusty Compress</h2>
+
+<p>This guide covers the essential features and workflows of Rusty Compress to help you become productive quickly.</p>
+
+<h2 id="interface-overview">Interface Overview</h2>
+
+<h3 id="main-window-components">Main Window Components</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────────────────────────────┐
+│ [🔄] Rusty Compress          [Tabs]    │  ← Tab Bar
+├─────────────────────────────────────────┤
+│ 📂 /home/user/Documents                │  ← Breadcrumb Navigation
+├─────────────────────────────────────────┤
+│ [Toolbar: ← → ↑ ↓ ⬇️ 🗑️ 🔍 📋]       │  ← Toolbar
+├─────────────────────────────────────────┤
+│ 📁 Documents    2024-01-15  4.2 GB     │
+│ 📁 Pictures     2024-01-10  1.8 GB     │
+│ 📄 archive.zip  2024-01-20  256 MB     │  ← File List
+│ 📄 notes.txt    2024-01-18   12 KB     │
+├─────────────────────────────────────────┤
+│ Selected: 1 item  Total: 4 items       │  ← Status Bar
+└─────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="navigation-elements">Navigation Elements</h3>
+
+<ul>
+  <li><strong>Tab Bar</strong>: Open multiple files/archives in tabs</li>
+  <li><strong>Breadcrumbs</strong>: Clear path navigation</li>
+  <li><strong>Toolbar</strong>: Quick access to common actions</li>
+  <li><strong>File List</strong>: Browse files and folders</li>
+  <li><strong>Status Bar</strong>: Selection and total item count</li>
+</ul>
+
+<h2 id="opening-archives">Opening Archives</h2>
+
+<h3 id="method-1-file-association">Method 1: File Association</h3>
+
+<ol>
+  <li>Locate your archive file in Finder/Explorer/File Manager</li>
+  <li>Double-click the file</li>
+  <li>Rusty Compress automatically opens the archive</li>
+</ol>
+
+<h3 id="method-2-in-app-browser">Method 2: In-App Browser</h3>
+
+<ol>
+  <li>Click the folder icon in the toolbar</li>
+  <li>Navigate to the folder containing your archive</li>
+  <li>Click on the archive file to open it</li>
+</ol>
+
+<h3 id="method-3-drag-and-drop">Method 3: Drag and Drop</h3>
+
+<ol>
+  <li>Drag an archive file from your file manager</li>
+  <li>Drop it onto the Rusty Compress window</li>
+</ol>
+
+<h3 id="supported-archive-formats">Supported Archive Formats</h3>
+
+<p><strong>ZIP-based</strong>: <code class="language-plaintext highlighter-rouge">.zip</code>, <code class="language-plaintext highlighter-rouge">.jar</code>, <code class="language-plaintext highlighter-rouge">.apk</code>, <code class="language-plaintext highlighter-rouge">.xapk</code>, <code class="language-plaintext highlighter-rouge">.ipa</code>
+<strong>TAR-based</strong>: <code class="language-plaintext highlighter-rouge">.tar</code>, <code class="language-plaintext highlighter-rouge">.tar.gz</code>, <code class="language-plaintext highlighter-rouge">.tgz</code>, <code class="language-plaintext highlighter-rouge">.tar.bz2</code>, <code class="language-plaintext highlighter-rouge">.tbz2</code>
+<strong>RAR-based</strong>: <code class="language-plaintext highlighter-rouge">.rar</code></p>
+
+<h2 id="browsing-archives">Browsing Archives</h2>
+
+<h3 id="navigation-within-archives">Navigation Within Archives</h3>
+
+<ul>
+  <li><strong>Up Arrow / Up Button</strong>: Navigate to parent directory</li>
+  <li><strong>Down Arrow</strong>: Enter selected directory</li>
+  <li><strong>Back/Forward</strong>: Navigate through browsing history</li>
+  <li><strong>Breadcrumbs</strong>: Click any part of the path to jump</li>
+</ul>
+
+<h3 id="file-selection">File Selection</h3>
+
+<ul>
+  <li><strong>Single Selection</strong>: Click on a file</li>
+  <li><strong>Multiple Selection</strong>:
+    <ul>
+      <li>Windows/Linux: <code class="language-plaintext highlighter-rouge">Ctrl + Click</code></li>
+      <li>macOS: <code class="language-plaintext highlighter-rouge">Cmd + Click</code></li>
+    </ul>
+  </li>
+  <li><strong>Range Selection</strong>: <code class="language-plaintext highlighter-rouge">Shift + Click</code> to select consecutive files</li>
+  <li><strong>Select All</strong>: <code class="language-plaintext highlighter-rouge">Ctrl/Cmd + A</code></li>
+</ul>
+
+<h3 id="sorting-files">Sorting Files</h3>
+
+<p>Right-click in the file list to sort by:</p>
+<ul>
+  <li><strong>Name</strong>: Alphabetical order</li>
+  <li><strong>Size</strong>: File size (smallest to largest)</li>
+  <li><strong>Type</strong>: File extension</li>
+  <li><strong>Date Modified</strong>: Most recent first</li>
+</ul>
+
+<h2 id="extracting-files">Extracting Files</h2>
+
+<h3 id="extract-single-files">Extract Single Files</h3>
+
+<ol>
+  <li>Browse to the archive</li>
+  <li>Select the files you want to extract</li>
+  <li>Click the “Extract” button in the toolbar (or press <code class="language-plaintext highlighter-rouge">Ctrl/Cmd + E</code>)</li>
+  <li>Choose destination directory</li>
+  <li>Monitor progress in the extraction window</li>
+</ol>
+
+<h3 id="extract-entire-archive">Extract Entire Archive</h3>
+
+<ol>
+  <li>Open the archive</li>
+  <li>Click “Extract All” in the toolbar (or press <code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Shift + E</code>)</li>
+  <li>Choose destination directory</li>
+  <li>Monitor progress</li>
+</ol>
+
+<h3 id="extraction-options">Extraction Options</h3>
+
+<ul>
+  <li><strong>Preserve Structure</strong>: Maintain original directory hierarchy</li>
+  <li><strong>Overwrite Files</strong>: Choose how to handle existing files</li>
+  <li><strong>Permissions</strong>: Preserve file permissions and attributes</li>
+  <li><strong>Timestamps</strong>: Keep original modification dates</li>
+</ul>
+
+<h2 id="file-preview">File Preview</h2>
+
+<h3 id="previewing-images">Previewing Images</h3>
+
+<ol>
+  <li>Navigate to an image file within an archive</li>
+  <li>Double-click the image file</li>
+  <li>Image opens in your system default image viewer</li>
+</ol>
+
+<h3 id="viewing-file-details">Viewing File Details</h3>
+
+<p><strong>Right-click</strong> on any file to see:</p>
+<ul>
+  <li>File name and extension</li>
+  <li>File size</li>
+  <li>Modification date</li>
+  <li>File type</li>
+  <li>Compression ratio (for archives)</li>
+</ul>
+
+<h3 id="opening-files-in-default-applications">Opening Files in Default Applications</h3>
+
+<ol>
+  <li>Select the file</li>
+  <li>Press <code class="language-plaintext highlighter-rouge">Enter</code> or double-click</li>
+  <li>File opens in your system’s default application</li>
+</ol>
+
+<h2 id="computing-checksums">Computing Checksums</h2>
+
+<h3 id="single-file-checksum">Single File Checksum</h3>
+
+<ol>
+  <li>Select a file (either in filesystem or within archive)</li>
+  <li>Click the “Checksum” button in the toolbar</li>
+  <li>Choose your preferred algorithm:
+    <ul>
+      <li><strong>MD5</strong>: Fast, basic verification</li>
+      <li><strong>SHA1</strong>: More secure than MD5</li>
+      <li><strong>SHA256</strong>: Recommended for most use cases</li>
+      <li><strong>SHA512</strong>: Highest security</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="batch-checksum-computation">Batch Checksum Computation</h3>
+
+<ol>
+  <li>Select multiple files using <code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Click</code></li>
+  <li>Click “Checksum” button</li>
+  <li>Choose algorithm</li>
+  <li>View progress and results for each file</li>
+</ol>
+
+<h3 id="understanding-checksum-results">Understanding Checksum Results</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>File: documents/report.pdf
+Algorithm: SHA256
+Checksum: a3b2c1d4e5f6...
+Status: ✅ Complete
+</code></pre></div></div>
+
+<p><strong>Use Cases</strong>:</p>
+<ul>
+  <li><strong>Verify Downloads</strong>: Ensure downloaded files aren’t corrupted</li>
+  <li><strong>File Integrity</strong>: Check if files have been modified</li>
+  <li><strong>Backup Verification</strong>: Confirm backup copies match originals</li>
+</ul>
+
+<h2 id="advanced-features">Advanced Features</h2>
+
+<h3 id="working-with-multiple-archives">Working with Multiple Archives</h3>
+
+<ol>
+  <li><strong>Open Multiple Tabs</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + T</code> for new tab</li>
+      <li>Drag archive to tab bar</li>
+      <li>Right-click archive → “Open in New Tab”</li>
+    </ul>
+  </li>
+  <li><strong>Switch Between Tabs</strong>:
+    <ul>
+      <li>Click tab headers</li>
+      <li><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Tab</code> to cycle through tabs</li>
+      <li><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + 1-9</code> to jump to specific tab</li>
+    </ul>
+  </li>
+  <li><strong>Compare Archives</strong>:
+    <ul>
+      <li>Open archives in separate tabs</li>
+      <li>Compare contents side by side</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="file-management-within-archives">File Management Within Archives</h3>
+
+<ol>
+  <li><strong>Search Files</strong>:
+    <ul>
+      <li>Press <code class="language-plaintext highlighter-rouge">Ctrl/Cmd + F</code> to open search</li>
+      <li>Type file name or pattern</li>
+      <li>Results shown in real-time</li>
+    </ul>
+  </li>
+  <li><strong>Filter Files</strong>:
+    <ul>
+      <li>Use the filter dropdown in toolbar</li>
+      <li>Filter by file type (images, documents, etc.)</li>
+      <li>Toggle hidden files</li>
+    </ul>
+  </li>
+  <li><strong>File Operations</strong>:
+    <ul>
+      <li>Delete files from archive (not yet implemented)</li>
+      <li>Rename files within archive (not yet implemented)</li>
+      <li>Add files to archive (not yet implemented)</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="keyboard-shortcuts">Keyboard Shortcuts</h2>
+
+<h3 id="file-operations">File Operations</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + O</code></td>
+      <td>Open file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + E</code></td>
+      <td>Extract selected</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Shift + E</code></td>
+      <td>Extract all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + C</code></td>
+      <td>Copy file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + V</code></td>
+      <td>Paste file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Delete</code></td>
+      <td>Delete selected</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="navigation">Navigation</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Alt + ←</code></td>
+      <td>Back</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Alt + →</code></td>
+      <td>Forward</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Alt + ↑</code></td>
+      <td>Parent directory</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + F</code></td>
+      <td>Search</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + A</code></td>
+      <td>Select all</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="window-management">Window Management</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + T</code></td>
+      <td>New tab</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + W</code></td>
+      <td>Close tab</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Tab</code></td>
+      <td>Next tab</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Shift + Tab</code></td>
+      <td>Previous tab</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="application">Application</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + Q</code></td>
+      <td>Quit application</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + ,</code></td>
+      <td>Preferences</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">F1</code></td>
+      <td>Help/Documentation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl/Cmd + H</code></td>
+      <td>Show in Finder/Explorer</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="common-workflows">Common Workflows</h2>
+
+<h3 id="workflow-1-download-verification">Workflow 1: Download Verification</h3>
+
+<ol>
+  <li>Download an archive file from the internet</li>
+  <li>Right-click the downloaded file</li>
+  <li>Select “Compute Checksum”</li>
+  <li>Choose SHA256 algorithm</li>
+  <li>Compare result with provided checksum</li>
+  <li>✅ If matches: File is authentic</li>
+  <li>❌ If differs: File may be corrupted</li>
+</ol>
+
+<h3 id="workflow-2-archive-exploration">Workflow 2: Archive Exploration</h3>
+
+<ol>
+  <li>Download a large archive (e.g., dataset)</li>
+  <li>Open archive in Rusty Compress</li>
+  <li>Browse through directory structure</li>
+  <li>Preview specific files of interest</li>
+  <li>Extract only what you need</li>
+  <li>Delete temporary extracted files when done</li>
+</ol>
+
+<h3 id="workflow-3-system-backup-verification">Workflow 3: System Backup Verification</h3>
+
+<ol>
+  <li>Locate backup archive</li>
+  <li>Open in Rusty Compress</li>
+  <li>Extract small test file</li>
+  <li>Compute checksum of extracted file</li>
+  <li>Compare with original file’s checksum</li>
+  <li>Verify backup integrity</li>
+</ol>
+
+<h3 id="workflow-4-android-app-inspection">Workflow 4: Android App Inspection</h3>
+
+<ol>
+  <li>Locate <code class="language-plaintext highlighter-rouge">.apk</code> or <code class="language-plaintext highlighter-rouge">.xapk</code> file</li>
+  <li>Open in Rusty Compress</li>
+  <li>Browse application structure</li>
+  <li>Preview app icon and resources</li>
+  <li>Extract specific assets if needed</li>
+  <li>Verify app integrity before installation</li>
+</ol>
+
+<h2 id="tips-and-tricks">Tips and Tricks</h2>
+
+<h3 id="performance-optimization">Performance Optimization</h3>
+
+<ul>
+  <li><strong>Large Archives</strong>: Use the “Extract Selected” feature for partial extraction</li>
+  <li><strong>Many Small Files</strong>: Consider extracting to SSD for better performance</li>
+  <li><strong>Network Storage</strong>: Extract to local drive first, then move to network location</li>
+</ul>
+
+<h3 id="security-best-practices">Security Best Practices</h3>
+
+<ul>
+  <li><strong>Unknown Archives</strong>: Extract to quarantine directory first</li>
+  <li><strong>Executable Files</strong>: Don’t run executables from untrusted archives</li>
+  <li><strong>Password Archives</strong>: Use external tools for password-protected archives</li>
+</ul>
+
+<h3 id="workflow-efficiency">Workflow Efficiency</h3>
+
+<ul>
+  <li><strong>Recent Files</strong>: Use recent files menu for quick access</li>
+  <li><strong>Bookmarks</strong>: Add frequently accessed folders to bookmarks (coming soon)</li>
+  <li><strong>Default Destination</strong>: Set default extraction location in preferences</li>
+</ul>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="archive-wont-open">Archive Won’t Open</h3>
+
+<p><strong>Possible causes</strong>:</p>
+<ul>
+  <li>File is corrupted</li>
+  <li>Unsupported archive format</li>
+  <li>File is password-protected</li>
+</ul>
+
+<p><strong>Solutions</strong>:</p>
+<ul>
+  <li>Verify file integrity with checksum</li>
+  <li>Check supported formats</li>
+  <li>Use specialized tools for encrypted archives</li>
+</ul>
+
+<h3 id="extraction-fails">Extraction Fails</h3>
+
+<p><strong>Common issues</strong>:</p>
+<ul>
+  <li>Insufficient disk space</li>
+  <li>Permission denied</li>
+  <li>Corrupted archive</li>
+</ul>
+
+<p><strong>Fixes</strong>:</p>
+<ul>
+  <li>Free up disk space</li>
+  <li>Run with admin privileges</li>
+  <li>Verify archive integrity first</li>
+</ul>
+
+<h3 id="checksum-computation-stuck">Checksum Computation Stuck</h3>
+
+<p><strong>Troubleshoot</strong>:</p>
+<ul>
+  <li>Cancel and restart the operation</li>
+  <li>Try a different algorithm</li>
+  <li>Check system resources</li>
+  <li>Verify file is accessible</li>
+</ul>
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; margin-top: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title" style="color: white;">🎓 Want to Learn More?</h3>
+    </div>
+    <p style="color: rgba(255,255,255,0.9);">Explore our advanced guides and API documentation to unlock the full potential of Rusty Compress.</p>
+    <a href="/api.html" class="btn" style="background: white; color: #667eea;">API Reference</a>
+    <a href="/development.html" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Development Guide</a>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>

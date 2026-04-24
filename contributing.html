@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributing - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link active">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>Contributing</h1>
+        
+        <p class="subtitle">Help improve Rusty Compress</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <h2 id="welcome-contributors-">Welcome Contributors! 🎉</h2>
+
+<p>Thank you for considering contributing to Rusty Compress! We appreciate any help you can provide, whether it’s reporting bugs, fixing issues, adding features, or improving documentation.</p>
+
+<h2 id="ways-to-contribute">Ways to Contribute</h2>
+
+<h3 id="-report-bugs">🐛 Report Bugs</h3>
+
+<p>Found a bug? Help us fix it!</p>
+
+<ol>
+  <li><strong>Search existing issues</strong> - Check if the bug has already been reported</li>
+  <li><strong>Create a detailed report</strong> - Include:
+    <ul>
+      <li>Steps to reproduce</li>
+      <li>Expected vs actual behavior</li>
+      <li>Screenshots (if applicable)</li>
+      <li>System information (OS, app version)</li>
+    </ul>
+  </li>
+  <li><strong>Use appropriate labels</strong> - Bug, UI, Backend, etc.</li>
+</ol>
+
+<h3 id="-suggest-features">💡 Suggest Features</h3>
+
+<p>Have an idea for improvement?</p>
+
+<ol>
+  <li><strong>Check roadmap</strong> - See if it’s already planned</li>
+  <li><strong>Create a feature request</strong> - Describe:
+    <ul>
+      <li>The problem you’re solving</li>
+      <li>Why this feature is useful</li>
+      <li>Potential implementation approaches</li>
+    </ul>
+  </li>
+  <li><strong>Discuss alternatives</strong> - Different ways to solve the problem</li>
+</ol>
+
+<h3 id="-security-issues">🔒 Security Issues</h3>
+
+<p>Found a security vulnerability?</p>
+
+<ol>
+  <li><strong>Don’t use public issues</strong> - Email security concerns privately</li>
+  <li><strong>Provide details</strong> - Describe the vulnerability and potential impact</li>
+  <li><strong>Allow time to fix</strong> - Give us time to develop and test a fix</li>
+</ol>
+
+<h3 id="-improve-documentation">📖 Improve Documentation</h3>
+
+<p>Documentation is crucial!</p>
+
+<ul>
+  <li><strong>Fix typos</strong> - Correct spelling and grammar mistakes</li>
+  <li><strong>Add examples</strong> - Provide code examples and use cases</li>
+  <li><strong>Clarify sections</strong> - Make complex topics easier to understand</li>
+  <li><strong>Translate</strong> - Help translate documentation to other languages</li>
+</ul>
+
+<h3 id="-code-contributions">💻 Code Contributions</h3>
+
+<p>Ready to write code? Great!</p>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<h3 id="1-set-up-development-environment">1. Set Up Development Environment</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Fork the repository</span>
+<span class="c"># Clone your fork</span>
+git clone https://github.com/YOUR_USERNAME/rusty-compress.git
+<span class="nb">cd </span>rusty-compress
+
+<span class="c"># Install dependencies</span>
+npm <span class="nb">install</span>
+
+<span class="c"># Set up development environment</span>
+npm run tauri dev
+</code></pre></div></div>
+
+<h3 id="2-choose-what-to-work-on">2. Choose What to Work On</h3>
+
+<ul>
+  <li><strong>Good First Issues</strong> - Start with issues marked as “good first issue”</li>
+  <li><strong>Help Wanted</strong> - Issues needing community help</li>
+  <li><strong>Feature Requests</strong> - Implement requested features</li>
+</ul>
+
+<h3 id="3-create-a-branch">3. Create a Branch</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout <span class="nt">-b</span> feature/your-feature-name
+<span class="c"># or</span>
+git checkout <span class="nt">-b</span> fix/your-bug-fix
+</code></pre></div></div>
+
+<h3 id="4-make-your-changes">4. Make Your Changes</h3>
+
+<p>Follow our code style and patterns:</p>
+<ul>
+  <li>Use existing component patterns</li>
+  <li>Write clear, descriptive comments</li>
+  <li>Add tests for new functionality</li>
+  <li>Update documentation</li>
+</ul>
+
+<h3 id="5-test-your-changes">5. Test Your Changes</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run tests</span>
+npm <span class="nb">test
+cd </span>src-tauri <span class="o">&amp;&amp;</span> cargo <span class="nb">test</span>
+
+<span class="c"># Run linter</span>
+npm run lint
+<span class="nb">cd </span>src-tauri <span class="o">&amp;&amp;</span> cargo clippy
+
+<span class="c"># Build project</span>
+npm run build
+npm run tauri build
+</code></pre></div></div>
+
+<h3 id="6-commit-your-changes">6. Commit Your Changes</h3>
+
+<p>Follow <a href="https://www.conventionalcommits.org/">Conventional Commits</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git add <span class="nb">.</span>
+git commit <span class="nt">-m</span> <span class="s2">"feat: add support for 7z archives"</span>
+<span class="c"># or</span>
+git commit <span class="nt">-m</span> <span class="s2">"fix: resolve extraction progress issue"</span>
+</code></pre></div></div>
+
+<h3 id="7-push-and-create-pull-request">7. Push and Create Pull Request</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git push origin feature/your-feature-name
+</code></pre></div></div>
+
+<p>Then create a PR on GitHub with:</p>
+<ul>
+  <li>Clear title and description</li>
+  <li>Reference related issues</li>
+  <li>Screenshots for UI changes</li>
+  <li>Testing instructions</li>
+</ul>
+
+<h2 id="coding-standards">Coding Standards</h2>
+
+<h3 id="general-guidelines">General Guidelines</h3>
+
+<ul>
+  <li><strong>Be consistent</strong> - Follow existing code patterns</li>
+  <li><strong>Keep it simple</strong> - Simple code is easier to maintain</li>
+  <li><strong>Test thoroughly</strong> - Write tests for new functionality</li>
+  <li><strong>Document clearly</strong> - Add helpful comments and documentation</li>
+</ul>
+
+<h3 id="frontend-react">Frontend (React)</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ✅ Good</span>
+<span class="kd">const</span> <span class="nx">FileManager</span> <span class="o">=</span> <span class="p">({</span> <span class="nx">currentPath</span><span class="p">,</span> <span class="nx">onNavigate</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">files</span><span class="p">,</span> <span class="nx">setFiles</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+  
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">loadFiles</span><span class="p">(</span><span class="nx">currentPath</span><span class="p">);</span>
+  <span class="p">},</span> <span class="p">[</span><span class="nx">currentPath</span><span class="p">]);</span>
+
+  <span class="k">return</span> <span class="p">&lt;</span><span class="nc">FileList</span> <span class="na">files</span><span class="p">=</span><span class="si">{</span><span class="nx">files</span><span class="si">}</span> <span class="na">onSelect</span><span class="p">=</span><span class="si">{</span><span class="nx">handleFileSelect</span><span class="si">}</span> <span class="p">/&gt;;</span>
+<span class="p">};</span>
+
+<span class="c1">// ❌ Bad</span>
+<span class="kd">const</span> <span class="nx">FileManager</span> <span class="o">=</span> <span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="p">[</span><span class="nx">files</span><span class="p">,</span> <span class="nx">setFiles</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+  
+  <span class="c1">// Missing dependencies</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">loadFiles</span><span class="p">(</span><span class="nx">props</span><span class="p">.</span><span class="nx">currentPath</span><span class="p">);</span>
+  <span class="p">},</span> <span class="p">[]);</span>
+  
+  <span class="k">return</span> <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span><span class="si">{</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span> <span class="o">=&gt;</span> <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span><span class="si">{</span><span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;)</span><span class="si">}</span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h3 id="backend-rust">Backend (Rust)</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ✅ Good</span>
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_directory</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+        <span class="nn">fs</span><span class="p">::</span><span class="nf">read_dir</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">)</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"Failed to read directory: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span><span class="o">?</span>
+            <span class="nf">.filter_map</span><span class="p">(|</span><span class="n">entry</span><span class="p">|</span> <span class="n">entry</span><span class="nf">.ok</span><span class="p">())</span>
+            <span class="nf">.map</span><span class="p">(|</span><span class="n">entry</span><span class="p">|</span> <span class="nn">FileInfo</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+            <span class="nf">.collect</span><span class="p">()</span>
+    <span class="p">})</span><span class="k">.await</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="n">e</span><span class="nf">.to_string</span><span class="p">())</span><span class="o">?</span>
+<span class="p">}</span>
+
+<span class="c1">// ❌ Bad</span>
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_directory</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">entries</span> <span class="o">=</span> <span class="nn">fs</span><span class="p">::</span><span class="nf">read_dir</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="nf">Ok</span><span class="p">(</span><span class="n">entries</span><span class="nf">.collect</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="error-handling">Error Handling</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Frontend error handling</span>
+<span class="kd">const</span> <span class="nx">handleSubmit</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">extract_files</span><span class="dl">'</span><span class="p">,</span> <span class="nx">params</span><span class="p">);</span>
+    <span class="nx">showSuccessNotification</span><span class="p">(</span><span class="dl">'</span><span class="s1">Extraction complete!</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Extraction failed:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+    <span class="nx">showErrorNotification</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span> <span class="o">||</span> <span class="dl">'</span><span class="s1">Unknown error</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Backend error handling</span>
+<span class="k">use</span> <span class="nn">thiserror</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
+
+<span class="nd">#[derive(Error,</span> <span class="nd">Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">ArchiveError</span> <span class="p">{</span>
+    <span class="nd">#[error(</span><span class="s">"File not found: {0}"</span><span class="nd">)]</span>
+    <span class="nf">FileNotFound</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    
+    <span class="nd">#[error(</span><span class="s">"IO error: {0}"</span><span class="nd">)]</span>
+    <span class="nf">IoError</span><span class="p">(</span><span class="nd">#[from]</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Error</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="testing">Testing</h2>
+
+<h3 id="frontend-tests">Frontend Tests</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Component test</span>
+<span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">FileManager</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">displays file list</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">files</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">file1.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">size</span><span class="p">:</span> <span class="mi">1024</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">file2.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">size</span><span class="p">:</span> <span class="mi">2048</span> <span class="p">}</span>
+    <span class="p">];</span>
+    
+    <span class="nx">render</span><span class="p">(&lt;</span><span class="nc">FileManager</span> <span class="na">files</span><span class="p">=</span><span class="si">{</span><span class="nx">files</span><span class="si">}</span> <span class="p">/&gt;);</span>
+    
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByText</span><span class="p">(</span><span class="dl">'</span><span class="s1">file1.txt</span><span class="dl">'</span><span class="p">)).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByText</span><span class="p">(</span><span class="dl">'</span><span class="s1">file2.txt</span><span class="dl">'</span><span class="p">)).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="backend-tests">Backend Tests</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">mod</span> <span class="n">tests</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+    
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_extract_files</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">extract_files</span><span class="p">(</span>
+            <span class="o">&amp;</span><span class="nf">app_handle</span><span class="p">(),</span>
+            <span class="s">"test.zip"</span><span class="p">,</span>
+            <span class="s">"/tmp/output"</span><span class="p">,</span>
+            <span class="nd">vec!</span><span class="p">[</span><span class="s">"file.txt"</span><span class="p">]</span>
+        <span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">result</span><span class="nf">.is_ok</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="documentation">Documentation</h2>
+
+<h3 id="code-documentation">Code Documentation</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Extracts files from an archive</span>
+<span class="cd">///</span>
+<span class="cd">/// # Arguments</span>
+<span class="cd">/// * `archive_path` - Path to the archive file</span>
+<span class="cd">/// * `output_path` - Destination directory for extracted files</span>
+<span class="cd">/// * `selected_files` - List of files to extract (empty = all)</span>
+<span class="cd">///</span>
+<span class="cd">/// # Returns</span>
+<span class="cd">/// Result indicating success or error</span>
+<span class="cd">///</span>
+<span class="cd">/// # Examples</span>
+<span class="cd">/// ```rust</span>
+<span class="cd">/// extract_files(&amp;app, "archive.zip", "/tmp", vec!["file.txt"]).await</span>
+<span class="cd">/// ```</span>
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">extract_files</span><span class="p">(</span>
+    <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">,</span>
+    <span class="n">archive_path</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="n">selected_files</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Implementation</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="pull-request-guidelines">Pull Request Guidelines</h2>
+
+<h3 id="title-format">Title Format</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>feat: add support for 7z archives
+fix: resolve extraction progress issue
+docs: update installation guide
+refactor: simplify file manager component
+test: add integration tests for checksum computation
+</code></pre></div></div>
+
+<h3 id="description-template">Description Template</h3>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## Description</span>
+Brief description of changes
+
+<span class="gu">## Type of Change</span>
+<span class="p">-</span> [ ] Bug fix
+<span class="p">-</span> [ ] New feature
+<span class="p">-</span> [ ] Breaking change
+<span class="p">-</span> [ ] Documentation update
+
+<span class="gu">## Related Issues</span>
+Fixes #123
+Related to #456
+
+<span class="gu">## Testing</span>
+<span class="p">-</span> [ ] Tests pass locally
+<span class="p">-</span> [ ] Added new tests
+<span class="p">-</span> [ ] Tested manually
+
+<span class="gu">## Screenshots (if applicable)</span>
+[Attach screenshots]
+
+<span class="gu">## Checklist</span>
+<span class="p">-</span> [ ] Code follows style guidelines
+<span class="p">-</span> [ ] Tests added/updated
+<span class="p">-</span> [ ] Documentation updated
+<span class="p">-</span> [ ] Commit messages follow guidelines
+</code></pre></div></div>
+
+<h2 id="code-review-process">Code Review Process</h2>
+
+<h3 id="before-submitting">Before Submitting</h3>
+
+<ol>
+  <li><strong>Self-review</strong> - Review your own changes</li>
+  <li><strong>Run tests</strong> - Ensure all tests pass</li>
+  <li><strong>Update docs</strong> - Keep documentation in sync</li>
+  <li><strong>Check formatting</strong> - Run linter and formatter</li>
+</ol>
+
+<h3 id="during-review">During Review</h3>
+
+<ol>
+  <li><strong>Be responsive</strong> - Address feedback promptly</li>
+  <li><strong>Ask questions</strong> - Clarify review comments</li>
+  <li><strong>Iterate</strong> - Make requested changes</li>
+  <li><strong>Stay patient</strong> - Reviews take time</li>
+</ol>
+
+<h3 id="after-merging">After Merging</h3>
+
+<ol>
+  <li><strong>Update branches</strong> - Sync with upstream</li>
+  <li><strong>Celebrate</strong> - Your contribution is live!</li>
+  <li><strong>Keep contributing</strong> - There’s always more to do</li>
+</ol>
+
+<h2 id="recognition">Recognition</h2>
+
+<p>Contributors will be recognized in:</p>
+<ul>
+  <li><strong>CONTRIBUTORS.md</strong> - List of all contributors</li>
+  <li><strong>Release Notes</strong> - Credits for each release</li>
+  <li><strong>GitHub Stats</strong> - Contribution statistics</li>
+</ul>
+
+<h2 id="community-guidelines">Community Guidelines</h2>
+
+<h3 id="be-respectful">Be Respectful</h3>
+
+<ul>
+  <li>Treat others with respect and kindness</li>
+  <li>Welcome newcomers and help them learn</li>
+  <li>Assume good intentions</li>
+  <li>Focus on what’s best for the community</li>
+</ul>
+
+<h3 id="be-constructive">Be Constructive</h3>
+
+<ul>
+  <li>Provide helpful, actionable feedback</li>
+  <li>Explain reasoning clearly</li>
+  <li>Suggest improvements</li>
+  <li>Acknowledge good work</li>
+</ul>
+
+<h3 id="be-inclusive">Be Inclusive</h3>
+
+<ul>
+  <li>Use inclusive language</li>
+  <li>Consider diverse perspectives</li>
+  <li>Make documentation accessible</li>
+  <li>Support users of all skill levels</li>
+</ul>
+
+<h2 id="communication-channels">Communication Channels</h2>
+
+<ul>
+  <li><strong>GitHub Issues</strong> - Bug reports and feature requests</li>
+  <li><strong>Pull Requests</strong> - Code contributions and reviews</li>
+  <li><strong>Discussions</strong> - Questions and ideas</li>
+  <li><strong>Email</strong> - For security concerns and private matters</li>
+</ul>
+
+<h2 id="resources-for-contributors">Resources for Contributors</h2>
+
+<h3 id="learning-resources">Learning Resources</h3>
+
+<ul>
+  <li><a href="https://react.dev/">React Documentation</a></li>
+  <li><a href="https://doc.rust-lang.org/book/">Rust Book</a></li>
+  <li><a href="https://tauri.app/v1/guides/">Tauri Guide</a></li>
+  <li><a href="https://opensource.guide/how-to-contribute/">Contributing to Open Source</a></li>
+</ul>
+
+<h3 id="project-resources">Project Resources</h3>
+
+<ul>
+  <li><a href="../README.md">Project README</a></li>
+  <li><a href="../CLAUDE.md">Architecture Documentation</a></li>
+  <li><a href="api.html">API Reference</a></li>
+  <li><a href="development.html">Development Guide</a></li>
+</ul>
+
+<h2 id="getting-help">Getting Help</h2>
+
+<h3 id="stuck-ask-for-help">Stuck? Ask for Help!</h3>
+
+<ul>
+  <li><strong>Comment on issues</strong> - Ask for clarification</li>
+  <li><strong>Join discussions</strong> - Get community input</li>
+  <li><strong>Mention maintainers</strong> - Get expert help</li>
+  <li><strong>Search documentation</strong> - Find existing answers</li>
+</ul>
+
+<h3 id="no-question-is-too-basic">No Question is Too Basic</h3>
+
+<p>We were all beginners once! Don’t hesitate to ask questions about:</p>
+<ul>
+  <li>Setup and installation</li>
+  <li>Code structure and patterns</li>
+  <li>Testing and debugging</li>
+  <li>Contribution process</li>
+</ul>
+
+<h2 id="impact-of-contributions">Impact of Contributions</h2>
+
+<p>Your contributions help make Rusty Compress:</p>
+
+<ul>
+  <li><strong>More reliable</strong> - Bug fixes improve stability</li>
+  <li><strong>More capable</strong> - New features add functionality</li>
+  <li><strong>More accessible</strong> - Better docs help more users</li>
+  <li><strong>More popular</strong> - Quality improvements attract users</li>
+</ul>
+
+<h2 id="thank-you">Thank You!</h2>
+
+<p>Every contribution, no matter how small, makes a difference. Thank you for helping make Rusty Compress better for everyone!</p>
+
+<hr />
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; margin-top: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title" style="color: white;">🎯 Ready to Make Your First Contribution?</h3>
+    </div>
+    <p style="color: rgba(255,255,255,0.9);">Start by finding a "good first issue" or helping improve documentation. Every contribution counts!</p>
+    <a href="https://github.com/vanhonit/rusty-compress/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" class="btn" style="background: white; color: #667eea;">Find Good First Issues</a>
+    <a href="https://github.com/vanhonit/rusty-compress/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Help Wanted</a>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>

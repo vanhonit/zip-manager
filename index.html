@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link active">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>Home</h1>
+        
+        <p class="subtitle">A modern, cross-platform desktop archive manager</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <div class="hero-section" style="text-align: center; padding: 3rem 0;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; color: #667eea;">Welcome to Rusty Compress</h2>
+        <p style="font-size: 1.25rem; color: #4a5568; margin-bottom: 2rem;">
+            A powerful, cross-platform desktop archive manager built with Tauri and React. 
+            Manage ZIP, TAR, and RAR archives with a modern, intuitive interface.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+            <a href="/installation.html" class="btn">Get Started</a>
+            <a href="https://github.com/vanhonit/rusty-compress" class="btn btn-secondary">View on GitHub</a>
+        </div>
+    </div>
+</div>
+
+<h2 id="key-features">Key Features</h2>
+
+<div class="grid grid-3" style="margin-top: 3rem;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">📦 Multi-Format Support</h3>
+        </div>
+        <p>Handle ZIP, JAR, APK, XAPK, IPA, TAR, TAR.GZ, TGZ, TAR.BZ2, TBZ2, and RAR archives with a unified interface.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🖥️ Cross-Platform</h3>
+        </div>
+        <p>Works seamlessly on Windows, macOS, and Linux with consistent functionality and performance across all platforms.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">⚡ High Performance</h3>
+        </div>
+        <p>Rust backend provides lightning-fast archive operations while React frontend ensures a smooth, responsive user experience.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🔍 Smart Browsing</h3>
+        </div>
+        <p>Browse both filesystem directories and archive contents seamlessly with dual-state tracking and intuitive navigation.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">📊 Progress Tracking</h3>
+        </div>
+        <p>Real-time progress updates for extraction and checksum operations with detailed status reporting.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🔐 Checksum Verification</h3>
+        </div>
+        <p>Compute MD5, SHA1, SHA256, and SHA512 checksums with progress reporting to verify file integrity.</p>
+    </div>
+</div>
+
+<h2 id="quick-start">Quick Start</h2>
+
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; color: white; margin: 2rem 0;">
+    <h3 style="color: white; border: none;">Ready to Get Started?</h3>
+    <p style="color: rgba(255,255,255,0.9);">Follow these simple steps to get Rusty Compress running on your system:</p>
+    <ol style="color: rgba(255,255,255,0.9);">
+        <li>Install Node.js, npm, and Rust on your system</li>
+        <li>Clone the repository: <code>git clone https://github.com/vanhonit/rusty-compress.git</code></li>
+        <li>Navigate to the directory and install dependencies</li>
+        <li>Run <code>npm run tauri dev</code> to start the development server</li>
+    </ol>
+    <a href="/installation.html" class="btn" style="background: white; color: #667eea;">View Full Installation Guide</a>
+</div>
+
+<h2 id="system-integration">System Integration</h2>
+
+<p>Rusty Compress integrates seamlessly with your operating system:</p>
+
+<ul>
+  <li><strong>File Associations</strong>: Automatically handles supported archive types</li>
+  <li><strong>System Menus</strong>: Right-click integration for quick actions</li>
+  <li><strong>Double-Click</strong>: Open archives directly from your file manager</li>
+  <li><strong>Preview</strong>: View images directly from archives without extraction</li>
+</ul>
+
+<h2 id="technology-stack">Technology Stack</h2>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Frontend</h3>
+        </div>
+        <ul>
+            <li><strong>React 18</strong> - Modern, component-based UI</li>
+            <li><strong>Vite</strong> - Lightning-fast build tool</li>
+            <li><strong>Tailwind CSS</strong> - Utility-first styling</li>
+            <li><strong>Tauri 2.x</strong> - Desktop framework integration</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Backend</h3>
+        </div>
+        <ul>
+            <li><strong>Rust</strong> - High-performance native code</li>
+            <li><strong>Tauri Core</strong> - Secure desktop API</li>
+            <li><strong>Archive Libraries</strong> - Native format handlers</li>
+            <li><strong>Async Runtime</strong> - Efficient task management</li>
+        </ul>
+    </div>
+</div>
+
+<h2 id="get-involved">Get Involved</h2>
+
+<p>Rusty Compress is an open-source project, and we welcome contributions from developers of all skill levels!</p>
+
+<ul>
+  <li>🐛 <strong>Report Bugs</strong>: Help us improve by reporting issues</li>
+  <li>💡 <strong>Suggest Features</strong>: Share your ideas for improvements</li>
+  <li>🔧 <strong>Submit Pull Requests</strong>: Contribute code and documentation</li>
+  <li>📖 <strong>Improve Documentation</strong>: Help make the project more accessible</li>
+</ul>
+
+<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn">Report Issues</a>
+    <a href="/contributing.html" class="btn btn-secondary">Contribute</a>
+</div>
+
+<hr />
+
+<div style="text-align: center; color: #718096; margin-top: 3rem;">
+    <p>Built with ❤️ using Tauri and React</p>
+    <p>© 2026 Hon Nguyen. Licensed under MIT License.</p>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>

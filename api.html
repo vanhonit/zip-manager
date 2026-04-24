@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link active">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>API Reference</h1>
+        
+        <p class="subtitle">Tauri commands and backend functions</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <h2 id="overview">Overview</h2>
+
+<p>Rusty Compress exposes a set of Tauri commands that allow the React frontend to communicate with the Rust backend. These commands handle file operations, archive management, and system integration.</p>
+
+<h2 id="command-structure">Command Structure</h2>
+
+<p>All commands follow the Tauri pattern:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">invoke</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/core</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">command_name</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">param1</span><span class="p">:</span> <span class="dl">'</span><span class="s1">value1</span><span class="dl">'</span><span class="p">,</span> 
+  <span class="na">param2</span><span class="p">:</span> <span class="dl">'</span><span class="s1">value2</span><span class="dl">'</span> 
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h2 id="file-system-commands">File System Commands</h2>
+
+<h3 id="read_directory">read_directory</h3>
+
+<p>List contents of a filesystem directory.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">path</code> (string): Absolute path to directory</li>
+</ul>
+
+<p><strong>Returns</strong>:</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">Array</span><span class="o">&lt;</span><span class="p">{</span>
+  <span class="na">name</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">path</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">size</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">is_directory</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">;</span>
+  <span class="nl">modified</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">file_type</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">}</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">files</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/Documents</span><span class="dl">'</span> 
+<span class="p">});</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">files</span><span class="p">);</span>
+<span class="c1">// [</span>
+<span class="c1">//   { name: 'Documents', path: '/home/user/Documents', size: 0, is_directory: true, ... },</span>
+<span class="c1">//   { name: 'file.txt', path: '/home/user/file.txt', size: 1024, is_directory: false, ... }</span>
+<span class="c1">// ]</span>
+</code></pre></div></div>
+
+<p><strong>Error Cases</strong>:</p>
+<ul>
+  <li>Directory doesn’t exist</li>
+  <li>Insufficient permissions</li>
+  <li>Path is not a directory</li>
+</ul>
+
+<h3 id="open_file">open_file</h3>
+
+<p>Open a file with the system’s default application.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">path</code> (string): Absolute path to file</li>
+</ul>
+
+<p><strong>Returns</strong>: <code class="language-plaintext highlighter-rouge">void</code></p>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">open_file</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/document.pdf</span><span class="dl">'</span> 
+<span class="p">});</span>
+<span class="c1">// Opens PDF in default PDF viewer</span>
+</code></pre></div></div>
+
+<p><strong>Supported Operations</strong>:</p>
+<ul>
+  <li>Opens file in system default application</li>
+  <li>Works for both local files and extracted archive files</li>
+  <li>Cross-platform compatibility</li>
+</ul>
+
+<h2 id="archive-management-commands">Archive Management Commands</h2>
+
+<h3 id="archive_file_details">archive_file_details</h3>
+
+<p>Get contents of an archive, optionally filtered by subdirectory.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">archive_path</code> (string): Path to archive file</li>
+  <li><code class="language-plaintext highlighter-rouge">file_path</code> (string, optional): Path within archive (default: “” for root)</li>
+  <li><code class="language-plaintext highlighter-rouge">state</code> (string): Current navigation state</li>
+</ul>
+
+<p><strong>Returns</strong>:</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">Array</span><span class="o">&lt;</span><span class="p">{</span>
+  <span class="na">name</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">path</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">size</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">compressed_size</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">is_directory</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">;</span>
+  <span class="nl">modified</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">file_type</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">compression_method</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">}</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Get root contents</span>
+<span class="kd">const</span> <span class="nx">rootFiles</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">archive_file_details</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">file_path</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="dl">'</span><span class="s1">browsing</span><span class="dl">'</span>
+<span class="p">});</span>
+
+<span class="c1">// Get specific subdirectory</span>
+<span class="kd">const</span> <span class="nx">subDirFiles</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">archive_file_details</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">file_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">subfolder/documents</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="dl">'</span><span class="s1">browsing</span><span class="dl">'</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p><strong>Archive Format Support</strong>:</p>
+<ul>
+  <li>ZIP, JAR, APK, XAPK, IPA</li>
+  <li>TAR, TAR.GZ, TGZ, TAR.BZ2, TBZ2</li>
+  <li>RAR</li>
+</ul>
+
+<p><strong>Performance Notes</strong>:</p>
+<ul>
+  <li>Large archives may take time to read</li>
+  <li>Results are cached for subsequent calls</li>
+  <li>Memory usage scales with archive size</li>
+</ul>
+
+<h3 id="extract_files">extract_files</h3>
+
+<p>Extract files from an archive to destination directory.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">app_handle</code>: Tauri app handle for emitting events</li>
+  <li><code class="language-plaintext highlighter-rouge">archive_path</code> (string): Path to archive file</li>
+  <li><code class="language-plaintext highlighter-rouge">output_path</code> (string): Destination directory</li>
+  <li><code class="language-plaintext highlighter-rouge">selected_files</code> (Array<string>): Files to extract (empty = all)</string></li>
+</ul>
+
+<p><strong>Returns</strong>: <code class="language-plaintext highlighter-rouge">Promise&lt;void&gt;</code></p>
+
+<p><strong>Events Emitted</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">extract-progress</code>: Progress updates
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">current</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="nx">total</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="nx">filename</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">extract-complete</code>: Extraction finished
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">success</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">,</span> <span class="nx">message</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">files_extracted</span><span class="p">:</span> <span class="kr">number</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">extract-error</code>: Error occurred
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">error</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">details</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">listen</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/event</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="c1">// Listen for progress updates</span>
+<span class="kd">const</span> <span class="nx">unlisten</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">listen</span><span class="p">(</span><span class="dl">'</span><span class="s1">extract-progress</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">current</span><span class="p">,</span> <span class="nx">total</span><span class="p">,</span> <span class="nx">filename</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Extracting </span><span class="p">${</span><span class="nx">current</span><span class="p">}</span><span class="s2">/</span><span class="p">${</span><span class="nx">total</span><span class="p">}</span><span class="s2">: </span><span class="p">${</span><span class="nx">filename</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+  <span class="nx">updateProgressBar</span><span class="p">(</span><span class="nx">current</span> <span class="o">/</span> <span class="nx">total</span> <span class="o">*</span> <span class="mi">100</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Extract files</span>
+<span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">extract_files</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">app_handle</span><span class="p">:</span> <span class="nx">getCurrentWindow</span><span class="p">(),</span>
+  <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">output_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/extracted</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">selected_files</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">folder/file1.txt</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">folder/file2.pdf</span><span class="dl">'</span><span class="p">]</span>
+<span class="p">});</span>
+
+<span class="c1">// Clean up listener</span>
+<span class="nx">unlisten</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><strong>Extraction Options</strong>:</p>
+<ul>
+  <li>Preserve directory structure</li>
+  <li>Maintain file permissions</li>
+  <li>Handle existing files</li>
+  <li>Progress reporting</li>
+</ul>
+
+<h3 id="view_file_in_archive">view_file_in_archive</h3>
+
+<p>View a specific file from archive in system viewer.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">archive_path</code> (string): Path to archive file</li>
+  <li><code class="language-plaintext highlighter-rouge">file_name</code> (string): Path to file within archive</li>
+  <li><code class="language-plaintext highlighter-rouge">state</code> (string): Current navigation state</li>
+</ul>
+
+<p><strong>Returns</strong>: <code class="language-plaintext highlighter-rouge">Promise&lt;void&gt;</code></p>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">view_file_in_archive</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">file_name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">documents/report.pdf</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">state</span><span class="p">:</span> <span class="dl">'</span><span class="s1">viewing</span><span class="dl">'</span>
+<span class="p">});</span>
+<span class="c1">// Opens PDF in default viewer</span>
+</code></pre></div></div>
+
+<p><strong>Process</strong>:</p>
+<ol>
+  <li>Extracts file to temporary location</li>
+  <li>Opens in system default viewer</li>
+  <li>Cleans up temporary file when viewer closes</li>
+</ol>
+
+<h3 id="get_image_preview">get_image_preview</h3>
+
+<p>Get image preview from archive as data URL.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">archive_path</code> (string): Path to archive file</li>
+  <li><code class="language-plaintext highlighter-rouge">file_path</code> (string): Path to image file within archive</li>
+</ul>
+
+<p><strong>Returns</strong>: <code class="language-plaintext highlighter-rouge">Promise&lt;string&gt;</code> (Data URL)</p>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">imageUrl</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">get_image_preview</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">file_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">images/photo.jpg</span><span class="dl">'</span>
+<span class="p">});</span>
+
+<span class="c1">// Display in React component</span>
+<span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">imageUrl</span><span class="p">}</span> <span class="nx">alt</span><span class="o">=</span><span class="dl">"</span><span class="s2">Preview</span><span class="dl">"</span> <span class="o">/&gt;</span>
+</code></pre></div></div>
+
+<p><strong>Supported Image Formats</strong>:</p>
+<ul>
+  <li>JPEG, PNG, GIF, BMP, WEBP</li>
+  <li>TIFF (depending on system support)</li>
+</ul>
+
+<p><strong>Performance Considerations</strong>:</p>
+<ul>
+  <li>Large images may take time to extract</li>
+  <li>Consider implementing caching</li>
+  <li>Use thumbnails for preview lists</li>
+</ul>
+
+<h2 id="checksum-commands">Checksum Commands</h2>
+
+<h3 id="compute_checksum">compute_checksum</h3>
+
+<p>Compute file checksum with progress reporting.</p>
+
+<p><strong>Parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">app_handle</code>: Tauri app handle for emitting events</li>
+  <li><code class="language-plaintext highlighter-rouge">file_path</code> (string): Path to file</li>
+  <li><code class="language-plaintext highlighter-rouge">algorithm</code> (string): Checksum algorithm (‘MD5’, ‘SHA1’, ‘SHA256’, ‘SHA512’)</li>
+</ul>
+
+<p><strong>Returns</strong>: <code class="language-plaintext highlighter-rouge">Promise&lt;string&gt;</code> (Checksum value)</p>
+
+<p><strong>Events Emitted</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">checksum-progress-{algorithm}</code>: Progress updates
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">progress</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="nx">current_block</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="nx">total_blocks</span><span class="p">:</span> <span class="kr">number</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">checksum-complete-{algorithm}</code>: Computation finished
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">checksum</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">file_path</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">algorithm</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">checksum-error-{algorithm}</code>: Error occurred
+    <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">error</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">file_path</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>Example</strong>:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">listen</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/event</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="c1">// Listen for progress updates</span>
+<span class="kd">const</span> <span class="nx">algorithm</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">SHA256</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">unlisten</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">listen</span><span class="p">(</span><span class="s2">`checksum-progress-</span><span class="p">${</span><span class="nx">algorithm</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">progress</span><span class="p">,</span> <span class="nx">current_block</span><span class="p">,</span> <span class="nx">total_blocks</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Computing checksum: </span><span class="p">${</span><span class="nx">progress</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">1</span><span class="p">)}</span><span class="s2">%`</span><span class="p">);</span>
+  <span class="nx">updateProgressBar</span><span class="p">(</span><span class="nx">progress</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Compute checksum</span>
+<span class="kd">const</span> <span class="nx">checksum</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">compute_checksum</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="na">app_handle</span><span class="p">:</span> <span class="nx">getCurrentWindow</span><span class="p">(),</span>
+  <span class="na">file_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/home/user/document.pdf</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">algorithm</span><span class="p">:</span> <span class="nx">algorithm</span>
+<span class="p">});</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">SHA256:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">checksum</span><span class="p">);</span>
+<span class="c1">// "a3b2c1d4e5f6..."</span>
+
+<span class="c1">// Clean up listener</span>
+<span class="nx">unlisten</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><strong>Algorithm Comparison</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Algorithm</th>
+      <th>Speed</th>
+      <th>Security</th>
+      <th>Common Use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MD5</td>
+      <td>Fastest</td>
+      <td>Low</td>
+      <td>Quick verification</td>
+    </tr>
+    <tr>
+      <td>SHA1</td>
+      <td>Fast</td>
+      <td>Medium</td>
+      <td>Legacy compatibility</td>
+    </tr>
+    <tr>
+      <td>SHA256</td>
+      <td>Medium</td>
+      <td>High</td>
+      <td>General purpose</td>
+    </tr>
+    <tr>
+      <td>SHA512</td>
+      <td>Slower</td>
+      <td>Highest</td>
+      <td>Security-sensitive</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Performance Notes</strong>:</p>
+<ul>
+  <li>Progress reported in 5% increments</li>
+  <li>Large files may take considerable time</li>
+  <li>Memory usage is optimized for large files</li>
+</ul>
+
+<h2 id="event-system">Event System</h2>
+
+<h3 id="available-events">Available Events</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Extraction events</span>
+<span class="dl">'</span><span class="s1">extract-progress</span><span class="dl">'</span>     <span class="c1">// Progress during extraction</span>
+<span class="dl">'</span><span class="s1">extract-complete</span><span class="dl">'</span>     <span class="c1">// Extraction finished</span>
+<span class="dl">'</span><span class="s1">extract-error</span><span class="dl">'</span>        <span class="c1">// Extraction error</span>
+
+<span class="c1">// Checksum events</span>
+<span class="dl">'</span><span class="s1">checksum-progress-MD5</span><span class="dl">'</span>
+<span class="dl">'</span><span class="s1">checksum-complete-MD5</span><span class="dl">'</span>
+<span class="dl">'</span><span class="s1">checksum-error-MD5</span><span class="dl">'</span>
+<span class="dl">'</span><span class="s1">checksum-progress-SHA1</span><span class="dl">'</span>
+<span class="c1">// ... (other algorithms)</span>
+
+<span class="c1">// File events</span>
+<span class="dl">'</span><span class="s1">file-open</span><span class="dl">'</span>            <span class="c1">// File opened in viewer</span>
+</code></pre></div></div>
+
+<h3 id="event-listener-pattern">Event Listener Pattern</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">listen</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/event</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="c1">// General pattern</span>
+<span class="kd">const</span> <span class="nx">unlisten</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">listen</span><span class="p">(</span><span class="dl">'</span><span class="s1">event-name</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+  <span class="c1">// Handle event</span>
+<span class="p">});</span>
+
+<span class="c1">// Clean up when component unmounts</span>
+<span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">unlisten</span><span class="p">();</span>
+<span class="p">},</span> <span class="p">[]);</span>
+</code></pre></div></div>
+
+<h2 id="error-handling">Error Handling</h2>
+
+<h3 id="common-error-responses">Common Error Responses</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// File not found</span>
+<span class="p">{</span>
+  <span class="nl">error</span><span class="p">:</span> <span class="dl">"</span><span class="s2">File not found</span><span class="dl">"</span><span class="p">,</span>
+  <span class="nx">details</span><span class="p">:</span> <span class="dl">"</span><span class="s2">The specified file does not exist</span><span class="dl">"</span><span class="p">,</span>
+  <span class="nx">code</span><span class="p">:</span> <span class="dl">"</span><span class="s2">ENOENT</span><span class="dl">"</span>
+<span class="p">}</span>
+
+<span class="c1">// Permission denied</span>
+<span class="p">{</span>
+  <span class="na">error</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Permission denied</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">details</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Insufficient permissions to access file</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">code</span><span class="p">:</span> <span class="dl">"</span><span class="s2">EACCES</span><span class="dl">"</span>
+<span class="p">}</span>
+
+<span class="c1">// Corrupted archive</span>
+<span class="p">{</span>
+  <span class="na">error</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Archive corrupted</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">details</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Unable to read archive structure</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">code</span><span class="p">:</span> <span class="dl">"</span><span class="s2">EARCHIVE</span><span class="dl">"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="error-handling-pattern">Error Handling Pattern</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">command_name</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">param</span><span class="p">:</span> <span class="dl">'</span><span class="s1">value</span><span class="dl">'</span> <span class="p">});</span>
+  <span class="c1">// Handle success</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Command failed:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+  <span class="c1">// Parse error if available</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">showErrorNotification</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="performance-considerations">Performance Considerations</h2>
+
+<h3 id="async-operations">Async Operations</h3>
+
+<p>All commands are asynchronous and non-blocking:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// This won't block the UI</span>
+<span class="kd">const</span> <span class="nx">files</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/large/directory</span><span class="dl">'</span> <span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="memory-management">Memory Management</h3>
+
+<ul>
+  <li>Large files are processed in chunks</li>
+  <li>Temporary files are cleaned up automatically</li>
+  <li>Archive contents are cached for performance</li>
+</ul>
+
+<h3 id="optimized-workflows">Optimized Workflows</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Bad: Multiple sequential operations</span>
+<span class="kd">const</span> <span class="nx">files1</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/dir1</span><span class="dl">'</span> <span class="p">});</span>
+<span class="kd">const</span> <span class="nx">files2</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/dir2</span><span class="dl">'</span> <span class="p">});</span>
+
+<span class="c1">// Good: Parallel operations</span>
+<span class="kd">const</span> <span class="p">[</span><span class="nx">files1</span><span class="p">,</span> <span class="nx">files2</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+  <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/dir1</span><span class="dl">'</span> <span class="p">}),</span>
+  <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/dir2</span><span class="dl">'</span> <span class="p">})</span>
+<span class="p">]);</span>
+</code></pre></div></div>
+
+<h2 id="type-definitions">Type Definitions</h2>
+
+<p>For TypeScript support, create type definitions:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// types/tauri-commands.ts</span>
+<span class="k">export</span> <span class="kr">interface</span> <span class="nx">FileInfo</span> <span class="p">{</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">path</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">size</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">is_directory</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">;</span>
+  <span class="nl">modified</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">file_type</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kr">interface</span> <span class="nx">ExtractionProgress</span> <span class="p">{</span>
+  <span class="nl">current</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">total</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">filename</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kr">interface</span> <span class="nx">ChecksumProgress</span> <span class="p">{</span>
+  <span class="nl">progress</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">current_block</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">total_blocks</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="testing-commands">Testing Commands</h2>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Test file system operations</span>
+<span class="kd">const</span> <span class="nx">testFiles</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">files</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/tmp</span><span class="dl">'</span> <span class="p">});</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Files in /tmp:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">files</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="c1">// Test archive operations</span>
+<span class="kd">const</span> <span class="nx">testArchive</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">contents</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">archive_file_details</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">archive_path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/test/archive.zip</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">file_path</span><span class="p">:</span> <span class="dl">''</span><span class="p">,</span>
+    <span class="na">state</span><span class="p">:</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span>
+  <span class="p">});</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Archive contents:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">contents</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; margin-top: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title" style="color: white;">🔧 Advanced Usage</h3>
+    </div>
+    <p style="color: rgba(255,255,255,0.9);">For more advanced usage patterns and integration examples, check out our development guide.</p>
+    <a href="/development.html" class="btn" style="background: white; color: #667eea;">Development Guide</a>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>

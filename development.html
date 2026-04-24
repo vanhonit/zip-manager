@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development - Rusty Compress</title>
+    <link rel="stylesheet" href="/rusty-compress/assets/css/style.css">
+    <meta name="description" content="A modern, cross-platform desktop archive manager built with Tauri and React">
+    <meta name="author" content="Hon Nguyen">
+    <link rel="icon" type="image/png" href="/rusty-compress/assets/img/icon.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/rusty-compress/" class="site-title">
+                    <img src="/rusty-compress/assets/img/icon.png" alt="Rusty Compress" class="logo">
+                    <h1>Rusty Compress</h1>
+                </a>
+                <nav class="main-nav">
+                    
+                    <a href="/rusty-compress/" class="nav-link">Home</a>
+                    
+                    <a href="/rusty-compress/features.html" class="nav-link">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html" class="nav-link">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html" class="nav-link">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html" class="nav-link">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html" class="nav-link active">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html" class="nav-link">Contributing</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page">
+    
+    <div class="page-header">
+        <h1>Development</h1>
+        
+        <p class="subtitle">Contribute to Rusty Compress development</p>
+        
+    </div>
+    
+
+    <div class="page-content">
+        <h2 id="development-environment">Development Environment</h2>
+
+<p>This guide will help you set up a development environment and contribute to Rusty Compress.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>Before starting development, ensure you have:</p>
+
+<ul>
+  <li><strong>Node.js</strong> (v16 or higher)</li>
+  <li><strong>npm</strong> or <strong>yarn</strong></li>
+  <li><strong>Rust</strong> (latest stable)</li>
+  <li><strong>Git</strong></li>
+  <li><strong>Code Editor</strong> (VS Code recommended)</li>
+</ul>
+
+<h3 id="recommended-tools">Recommended Tools</h3>
+
+<ul>
+  <li><strong>VS Code</strong> with extensions:
+    <ul>
+      <li>Tauri Extension Pack</li>
+      <li>Rust Analyzer</li>
+      <li>ESLint</li>
+      <li>Prettier</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="setting-up-development-environment">Setting Up Development Environment</h2>
+
+<h3 id="step-1-fork-and-clone">Step 1: Fork and Clone</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Fork the repository on GitHub</span>
+<span class="c"># Clone your fork</span>
+git clone https://github.com/YOUR_USERNAME/rusty-compress.git
+<span class="nb">cd </span>rusty-compress
+
+<span class="c"># Add upstream repository</span>
+git remote add upstream https://github.com/vanhonit/rusty-compress.git
+</code></pre></div></div>
+
+<h3 id="step-2-install-dependencies">Step 2: Install Dependencies</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install Node.js dependencies</span>
+npm <span class="nb">install</span>
+
+<span class="c"># Install Rust tools (if not already installed)</span>
+rustup update
+rustup component add rustfmt clippy
+</code></pre></div></div>
+
+<h3 id="step-3-configure-development">Step 3: Configure Development</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install VS Code extensions (optional)</span>
+code <span class="nt">--install-extension</span> tauri-apps.tauri-vscode
+code <span class="nt">--install-extension</span> rust-lang.rust-analyzer
+</code></pre></div></div>
+
+<h2 id="project-structure">Project Structure</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rusty-compress/
+├── src/                      # React Frontend
+│   ├── components/           # Reusable components
+│   ├── modules/              # Feature modules
+│   └── main.jsx              # Entry point
+├── src-tauri/                # Rust Backend
+│   ├── src/
+│   │   ├── lib.rs           # Main Tauri commands
+│   │   ├── data_type.rs     # Shared types
+│   │   ├── utils.rs         # Utilities
+│   │   ├── file_manager.rs  # File operations
+│   │   ├── zip.rs           # ZIP handler
+│   │   ├── tar.rs           # TAR handler
+│   │   └── rar.rs           # RAR handler
+│   ├── Cargo.toml           # Rust dependencies
+│   └── tauri.conf.json      # Tauri configuration
+└── docs/                    # Jekyll documentation
+    ├── _layouts/
+    ├── _includes/
+    └── assets/
+</code></pre></div></div>
+
+<h2 id="development-workflow">Development Workflow</h2>
+
+<h3 id="running-development-server">Running Development Server</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Full Tauri development mode</span>
+npm run tauri dev
+
+<span class="c"># Frontend only (faster for UI changes)</span>
+npm run dev
+</code></pre></div></div>
+
+<h3 id="building-for-testing">Building for Testing</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Build React frontend</span>
+npm run build
+
+<span class="c"># Build Rust backend</span>
+<span class="nb">cd </span>src-tauri
+cargo build
+</code></pre></div></div>
+
+<h3 id="running-tests">Running Tests</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Frontend tests</span>
+npm <span class="nb">test</span>
+
+<span class="c"># Backend tests</span>
+<span class="nb">cd </span>src-tauri
+cargo <span class="nb">test</span>
+
+<span class="c"># Run specific test</span>
+cargo <span class="nb">test </span>test_read_directory
+</code></pre></div></div>
+
+<h2 id="frontend-development">Frontend Development</h2>
+
+<h3 id="react-component-structure">React Component Structure</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">useState</span><span class="p">,</span> <span class="nx">useEffect</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">invoke</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/core</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">MyComponent</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">files</span><span class="p">,</span> <span class="nx">setFiles</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">loading</span><span class="p">,</span> <span class="nx">setLoading</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">loadFiles</span><span class="p">();</span>
+  <span class="p">},</span> <span class="p">[]);</span>
+
+  <span class="kd">const</span> <span class="nx">loadFiles</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setLoading</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">read_directory</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">path</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/tmp</span><span class="dl">'</span> <span class="p">});</span>
+      <span class="nx">setFiles</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Failed to load files:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">finally</span> <span class="p">{</span>
+      <span class="nx">setLoading</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="si">{</span><span class="nx">loading</span> <span class="p">?</span> <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>Loading...<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span> <span class="p">:</span> <span class="p">(</span>
+        <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+          <span class="si">{</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">file</span> <span class="o">=&gt;</span> <span class="p">(</span>
+            <span class="p">&lt;</span><span class="nt">li</span> <span class="na">key</span><span class="p">=</span><span class="si">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">path</span><span class="si">}</span><span class="p">&gt;</span><span class="si">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+          <span class="p">))</span><span class="si">}</span>
+        <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+      <span class="p">)</span><span class="si">}</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">);</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">MyComponent</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="state-management-patterns">State Management Patterns</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Local component state</span>
+<span class="kd">const</span> <span class="p">[</span><span class="nx">currentPath</span><span class="p">,</span> <span class="nx">setCurrentPath</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="p">[</span><span class="nx">selectedFiles</span><span class="p">,</span> <span class="nx">setSelectedFiles</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+
+<span class="c1">// Derived state</span>
+<span class="kd">const</span> <span class="nx">selectedCount</span> <span class="o">=</span> <span class="nx">selectedFiles</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">isDirectoryEmpty</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="event-handling">Event Handling</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">listen</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@tauri-apps/api/event</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">useProgressListener</span> <span class="o">=</span> <span class="p">(</span><span class="nx">eventName</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">unlisten</span><span class="p">;</span>
+
+    <span class="kd">const</span> <span class="nx">setupListener</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">unlisten</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">listen</span><span class="p">(</span><span class="nx">eventName</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+      <span class="p">});</span>
+    <span class="p">};</span>
+
+    <span class="nx">setupListener</span><span class="p">();</span>
+    <span class="k">return</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">unlisten</span><span class="p">?.();</span>
+  <span class="p">},</span> <span class="p">[</span><span class="nx">eventName</span><span class="p">,</span> <span class="nx">callback</span><span class="p">]);</span>
+<span class="p">};</span>
+
+<span class="c1">// Usage in component</span>
+<span class="kd">const</span> <span class="nx">MyComponent</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">progress</span><span class="p">,</span> <span class="nx">setProgress</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+  <span class="nx">useProgressListener</span><span class="p">(</span><span class="dl">'</span><span class="s1">extract-progress</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">current</span> <span class="o">/</span> <span class="nx">data</span><span class="p">.</span><span class="nx">total</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="nx">setProgress</span><span class="p">(</span><span class="nx">percentage</span><span class="p">);</span>
+  <span class="p">});</span>
+
+  <span class="k">return</span> <span class="p">&lt;</span><span class="nt">progress</span> <span class="na">value</span><span class="p">=</span><span class="si">{</span><span class="nx">progress</span><span class="si">}</span> <span class="na">max</span><span class="p">=</span><span class="si">{</span><span class="mi">100</span><span class="si">}</span> <span class="p">/&gt;;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="backend-development">Backend Development</h2>
+
+<h3 id="adding-new-tauri-commands">Adding New Tauri Commands</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// src-tauri/src/lib.rs</span>
+
+<span class="k">use</span> <span class="nn">tauri</span><span class="p">::</span><span class="n">State</span><span class="p">;</span>
+
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">my_new_command</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Your logic here</span>
+    <span class="nf">Ok</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"Processed: {}"</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// Register the command</span>
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">tauri</span><span class="p">::</span><span class="nn">Builder</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+        <span class="nf">.invoke_handler</span><span class="p">(</span><span class="nn">tauri</span><span class="p">::</span><span class="nd">generate_handler!</span><span class="p">[</span>
+            <span class="n">my_new_command</span><span class="p">,</span>
+            <span class="n">read_directory</span><span class="p">,</span>
+            <span class="c1">// ... other commands</span>
+        <span class="p">])</span>
+        <span class="nf">.run</span><span class="p">(</span><span class="nn">tauri</span><span class="p">::</span><span class="nd">generate_context!</span><span class="p">())</span>
+        <span class="nf">.expect</span><span class="p">(</span><span class="s">"error while running tauri application"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="data-types">Data Types</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// src-tauri/src/data_type.rs</span>
+
+<span class="k">use</span> <span class="nn">serde</span><span class="p">::{</span><span class="n">Deserialize</span><span class="p">,</span> <span class="n">Serialize</span><span class="p">};</span>
+
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Serialize,</span> <span class="nd">Deserialize)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">FileInfo</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">path</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">size</span><span class="p">:</span> <span class="nb">u64</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">is_directory</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">modified</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Serialize,</span> <span class="nd">Deserialize)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">ExtractionProgress</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">current</span><span class="p">:</span> <span class="nb">u64</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">total</span><span class="p">:</span> <span class="nb">u64</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="error-handling">Error Handling</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">thiserror</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
+
+<span class="nd">#[derive(Error,</span> <span class="nd">Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">ArchiveError</span> <span class="p">{</span>
+    <span class="nd">#[error(</span><span class="s">"File not found: {0}"</span><span class="nd">)]</span>
+    <span class="nf">FileNotFound</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    
+    <span class="nd">#[error(</span><span class="s">"Permission denied: {0}"</span><span class="nd">)]</span>
+    <span class="nf">PermissionDenied</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    
+    <span class="nd">#[error(</span><span class="s">"Archive corrupted: {0}"</span><span class="nd">)]</span>
+    <span class="nf">ArchiveCorrupted</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    
+    <span class="nd">#[error(</span><span class="s">"IO error: {0}"</span><span class="nd">)]</span>
+    <span class="nf">IoError</span><span class="p">(</span><span class="nd">#[from]</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Error</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">// Convert to Tauri-compatible error</span>
+<span class="k">impl</span> <span class="nb">From</span><span class="o">&lt;</span><span class="n">ArchiveError</span><span class="o">&gt;</span> <span class="k">for</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">from</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">ArchiveError</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="n">error</span><span class="nf">.to_string</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="testing">Testing</h2>
+
+<h3 id="frontend-testing">Frontend Testing</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// src/components/__tests__/Tab.test.jsx</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">render</span><span class="p">,</span> <span class="nx">screen</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@testing-library/react</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">Tab</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../Tab</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">Tab Component</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">renders tab content</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Tab</span> <span class="nx">title</span><span class="o">=</span><span class="dl">"</span><span class="s2">Test Tab</span><span class="dl">"</span> <span class="o">/&gt;</span><span class="p">);</span>
+    <span class="nx">expect</span><span class="p">(</span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByText</span><span class="p">(</span><span class="dl">'</span><span class="s1">Test Tab</span><span class="dl">'</span><span class="p">)).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="backend-testing">Backend Testing</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">mod</span> <span class="n">tests</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_read_directory</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">read_directory</span><span class="p">(</span><span class="s">"/tmp"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">result</span><span class="nf">.is_ok</span><span class="p">());</span>
+        <span class="k">let</span> <span class="n">files</span> <span class="o">=</span> <span class="n">result</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="nd">assert!</span><span class="p">(</span><span class="o">!</span><span class="n">files</span><span class="nf">.is_empty</span><span class="p">());</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_extract_files</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">archive_path</span> <span class="o">=</span> <span class="s">"test_data/test.zip"</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">output_path</span> <span class="o">=</span> <span class="s">"/tmp/test_extraction"</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">extract_files</span><span class="p">(</span>
+            <span class="o">&amp;</span><span class="nf">app_handle</span><span class="p">(),</span>
+            <span class="n">archive_path</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="p">,</span>
+            <span class="nd">vec!</span><span class="p">[]</span>
+        <span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">result</span><span class="nf">.is_ok</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="code-quality">Code Quality</h2>
+
+<h3 id="linting">Linting</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Frontend linting</span>
+npm run lint
+
+<span class="c"># Backend linting</span>
+<span class="nb">cd </span>src-tauri
+cargo clippy
+
+<span class="c"># Fix issues automatically</span>
+cargo clippy <span class="nt">--fix</span>
+</code></pre></div></div>
+
+<h3 id="formatting">Formatting</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Format Rust code</span>
+<span class="nb">cd </span>src-tauri
+cargo <span class="nb">fmt</span>
+
+<span class="c"># Format JavaScript/JSX</span>
+npm run format
+</code></pre></div></div>
+
+<h2 id="performance-optimization">Performance Optimization</h2>
+
+<h3 id="rust-performance">Rust Performance</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use async for blocking operations</span>
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">heavy_computation</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tauri</span><span class="p">::</span><span class="nn">async_runtime</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+        <span class="c1">// CPU-intensive work here</span>
+        <span class="nf">heavy_operation</span><span class="p">()</span>
+    <span class="p">})</span><span class="k">.await</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="n">e</span><span class="nf">.to_string</span><span class="p">())</span><span class="o">?</span>
+<span class="p">}</span>
+
+<span class="c1">// Use efficient data structures</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">collections</span><span class="p">::</span><span class="n">HashMap</span><span class="p">;</span>
+
+<span class="c1">// Avoid unnecessary clones</span>
+<span class="k">fn</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="n">data</span><span class="nf">.iter</span><span class="p">()</span>
+        <span class="nf">.map</span><span class="p">(|</span><span class="n">s</span><span class="p">|</span> <span class="n">s</span><span class="nf">.len</span><span class="p">())</span>
+        <span class="py">.sum</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">()</span>
+        <span class="nf">.to_string</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="react-performance">React Performance</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Memoize expensive calculations</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">useMemo</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">react</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">expensiveValue</span> <span class="o">=</span> <span class="nx">useMemo</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">heavyComputation</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="p">},</span> <span class="p">[</span><span class="nx">data</span><span class="p">]);</span>
+
+<span class="c1">// Memoize callbacks</span>
+<span class="kd">const</span> <span class="nx">handleClick</span> <span class="o">=</span> <span class="nx">useCallback</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">doSomething</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+<span class="p">},</span> <span class="p">[</span><span class="nx">value</span><span class="p">]);</span>
+</code></pre></div></div>
+
+<h2 id="debugging">Debugging</h2>
+
+<h3 id="frontend-debugging">Frontend Debugging</h3>
+
+<div class="language-jsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Add console logging</span>
+<span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Component mounted</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="nx">files</span><span class="p">,</span> <span class="nx">path</span> <span class="p">});</span>
+<span class="p">},</span> <span class="p">[</span><span class="nx">files</span><span class="p">,</span> <span class="nx">path</span><span class="p">]);</span>
+
+<span class="c1">// Debug Tauri commands</span>
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">invoke</span><span class="p">(</span><span class="dl">'</span><span class="s1">my_command</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span> <span class="na">param</span><span class="p">:</span> <span class="dl">'</span><span class="s1">test</span><span class="dl">'</span> <span class="p">});</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Command result:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="backend-debugging">Backend Debugging</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use logging</span>
+<span class="k">use</span> <span class="k">log</span><span class="p">::{</span><span class="n">info</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">error</span><span class="p">};</span>
+
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">my_function</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">info!</span><span class="p">(</span><span class="s">"Starting my_function"</span><span class="p">);</span>
+    <span class="nd">debug!</span><span class="p">(</span><span class="s">"Processing data"</span><span class="p">);</span>
+    
+    <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">process_data</span><span class="p">();</span>
+    
+    <span class="nd">info!</span><span class="p">(</span><span class="s">"Function completed successfully"</span><span class="p">);</span>
+    <span class="nf">Ok</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Add logging to Cargo.toml</span>
+<span class="p">[</span><span class="n">dependencies</span><span class="p">]</span>
+<span class="k">log</span> <span class="o">=</span> <span class="s">"0.4"</span>
+<span class="n">env_logger</span> <span class="o">=</span> <span class="s">"0.10"</span>
+</code></pre></div></div>
+
+<h3 id="tauri-devtools">Tauri DevTools</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Enable detailed logging</span>
+<span class="nv">RUST_LOG</span><span class="o">=</span>debug npm run tauri dev
+
+<span class="c"># View logs in terminal</span>
+<span class="c"># Inspect React DevTools in browser</span>
+<span class="c"># Use Tauri API for native debugging</span>
+</code></pre></div></div>
+
+<h2 id="building-for-distribution">Building for Distribution</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Build for production</span>
+npm run tauri build
+
+<span class="c"># Build for specific platform</span>
+npm run tauri build <span class="nt">--</span> <span class="nt">--target</span> x86_64-pc-windows-msvc
+npm run tauri build <span class="nt">--</span> <span class="nt">--target</span> x86_64-apple-darwin
+npm run tauri build <span class="nt">--</span> <span class="nt">--target</span> x86_64-unknown-linux-gnu
+</code></pre></div></div>
+
+<h2 id="contributing-guidelines">Contributing Guidelines</h2>
+
+<h3 id="before-you-start">Before You Start</h3>
+
+<ol>
+  <li>Check existing issues and pull requests</li>
+  <li>Discuss major changes in an issue first</li>
+  <li>Follow the existing code style</li>
+  <li>Write tests for new features</li>
+</ol>
+
+<h3 id="commit-messages">Commit Messages</h3>
+
+<p>Follow <a href="https://www.conventionalcommits.org/">Conventional Commits</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>feat: add support for 7z archives
+fix: resolve extraction progress issue
+docs: update installation guide
+refactor: simplify file manager component
+test: add integration tests for checksum computation
+</code></pre></div></div>
+
+<h3 id="pull-request-process">Pull Request Process</h3>
+
+<ol>
+  <li>Create a feature branch
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout <span class="nt">-b</span> feature/my-feature
+</code></pre></div>    </div>
+  </li>
+  <li>Make your changes
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Make changes</span>
+npm <span class="nb">test
+</span>cargo <span class="nb">test
+</span>cargo clippy
+</code></pre></div>    </div>
+  </li>
+  <li>Commit your changes
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git add <span class="nb">.</span>
+git commit <span class="nt">-m</span> <span class="s2">"feat: add my new feature"</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Push to your fork
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git push origin feature/my-feature
+</code></pre></div>    </div>
+  </li>
+  <li>Create pull request
+    <ul>
+      <li>Describe your changes</li>
+      <li>Link related issues</li>
+      <li>Add screenshots for UI changes</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="documentation">Documentation</h2>
+
+<h3 id="code-comments">Code Comments</h3>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Reads the contents of a directory</span>
+<span class="cd">///</span>
+<span class="cd">/// # Arguments</span>
+<span class="cd">/// * `path` - The absolute path to the directory</span>
+<span class="cd">///</span>
+<span class="cd">/// # Returns</span>
+<span class="cd">/// A vector of `FileInfo` structs representing directory contents</span>
+<span class="cd">///</span>
+<span class="cd">/// # Errors</span>
+<span class="cd">/// Returns an error if the directory doesn't exist or lacks permissions</span>
+<span class="nd">#[tauri::command]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_directory</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">FileInfo</span><span class="o">&gt;</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Implementation</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="api-documentation">API Documentation</h3>
+
+<p>Keep the API documentation up to date:</p>
+<ul>
+  <li>Add examples for new commands</li>
+  <li>Document parameter types</li>
+  <li>Describe error cases</li>
+  <li>Update type definitions</li>
+</ul>
+
+<h2 id="getting-help">Getting Help</h2>
+
+<h3 id="resources">Resources</h3>
+
+<ul>
+  <li><a href="https://tauri.app/v1/guides/">Tauri Documentation</a></li>
+  <li><a href="https://react.dev/">React Documentation</a></li>
+  <li><a href="https://doc.rust-lang.org/book/">Rust Book</a></li>
+  <li><a href="https://github.com/vanhonit/rusty-compress/issues">Project Issues</a></li>
+</ul>
+
+<h3 id="community">Community</h3>
+
+<ul>
+  <li>GitHub Discussions</li>
+  <li>Stack Overflow (tauri tag)</li>
+  <li>Discord server (if available)</li>
+</ul>
+
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; margin-top: 2rem;">
+    <div class="card-header">
+        <h3 class="card-title" style="color: white;">🚀 Ready to Contribute?</h3>
+    </div>
+    <p style="color: rgba(255,255,255,0.9);">We welcome contributions from developers of all skill levels. Check out our open issues and start making a difference!</p>
+    <a href="https://github.com/vanhonit/rusty-compress/issues" class="btn" style="background: white; color: #667eea;">Find Issues to Work On</a>
+    <a href="/contributing.html" class="btn" style="background: white; color: #667eea; margin-left: 0.5rem;">Contributing Guide</a>
+</div>
+
+    </div>
+</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rusty Compress</h3>
+                    <p>A modern, cross-platform desktop archive manager built with Tauri and React</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    
+                    <a href="/rusty-compress/">Home</a>
+                    
+                    <a href="/rusty-compress/features.html">Features</a>
+                    
+                    <a href="/rusty-compress/installation.html">Installation</a>
+                    
+                    <a href="/rusty-compress/usage.html">Usage</a>
+                    
+                    <a href="/rusty-compress/api.html">API Reference</a>
+                    
+                    <a href="/rusty-compress/development.html">Development</a>
+                    
+                    <a href="/rusty-compress/contributing.html">Contributing</a>
+                    
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <a href="https://github.com/vanhonit/rusty-compress" target="_blank">
+                        <i class="github-icon">GitHub</i>
+                    </a>
+                    <a href="https://github.com/vanhonit/rusty-compress/issues" target="_blank">
+                        <i class="issues-icon">Issues</i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Hon Nguyen. Built with Tauri and React.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/rusty-compress/assets/js/main.js"></script>
+</body>
+</html>
