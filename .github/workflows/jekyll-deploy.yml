@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -37,12 +39,15 @@ jobs:
       - name: Build site
         run: |
           cd docs
-          bundle install
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: List built files
+        run: |
+          echo "Listing _site directory contents:"
+          ls -R docs/_site
+          echo "Checking if assets directory exists:"
+          test -d docs/_site/assets && echo "Assets directory exists" || echo "Assets directory missing"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
